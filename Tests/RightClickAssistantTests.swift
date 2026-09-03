@@ -9,7 +9,6 @@ final class EasyRightTests: XCTestCase {
     
     override func setUpWithError() throws {
         try super.setUpWithError()
-        AppLanguageManager.shared.language = .zhHans
         UserDefaults.standard.set("zhHans", forKey: SharedStorageManager.Keys.appLanguage)
         _ = SharedStorageManager.shared.setString("zhHans", forKey: SharedStorageManager.Keys.appLanguage)
 
