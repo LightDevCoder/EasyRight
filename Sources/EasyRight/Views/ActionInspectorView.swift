@@ -153,6 +153,33 @@ public extension MenuAction {
                         note: "剪切板有内容时粘贴至当前空白容器"
                     )
                 }
+            } else if id.contains("copypath") || id.contains("shellescaped") {
+                switch scope {
+                case .singleFile:
+                    return ActionScopeAvailability(
+                        scope: scope,
+                        isSupported: true,
+                        note: "拷贝所选单个文件的路径"
+                    )
+                case .multipleFiles:
+                    return ActionScopeAvailability(
+                        scope: scope,
+                        isSupported: true,
+                        note: "批量换行拷贝所有选中的文件路径"
+                    )
+                case .directory:
+                    return ActionScopeAvailability(
+                        scope: scope,
+                        isSupported: true,
+                        note: "拷贝所选文件夹目录路径"
+                    )
+                case .blankArea:
+                    return ActionScopeAvailability(
+                        scope: scope,
+                        isSupported: true,
+                        note: "在空白处右键拷贝当前文件夹路径"
+                    )
+                }
             } else if id.contains("copy") || id.contains("cut") || id.contains("delete") || id.contains("moveto") || id.contains("copyto") || id.contains("pathcopy") {
                 switch scope {
                 case .singleFile:

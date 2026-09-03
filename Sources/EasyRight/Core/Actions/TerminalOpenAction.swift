@@ -69,10 +69,18 @@ public final class TerminalOpenAction: MenuAction, @unchecked Sendable {
     }
     
     public func isAvailable(for targetURLs: [URL]) -> Bool {
+        return isAvailable(for: targetURLs, isContainer: false)
+    }
+
+    public func isAvailable(for targetURLs: [URL], isContainer: Bool) -> Bool {
         // 只有当安装了对应的软件，此右键菜单项才应该被启用并显示给用户。
         // 走进程内缓存，避免 menu(for:) 渲染时重复触发 Launch Services 同步查询。
         guard InstalledAppRegistry.shared.isInstalled(appType.bundleIdentifier) else {
             return false
+        }
+        if isContainer {
+            // 右键空白背景时，以当前所在目录作为工作区，始终可用
+            return true
         }
         return !targetURLs.isEmpty
     }

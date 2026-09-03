@@ -216,9 +216,18 @@ public final class FileManageAction: MenuAction, @unchecked Sendable {
     
     public func isAvailable(for targetURLs: [URL], isContainer: Bool) -> Bool {
         if isContainer {
-            // 右键空白背景 (Container) 时：只有“粘贴”操作可能可用（前提是剪切板内有被剪切的文件）
-            // 此时 cut, permanentDelete, copyPath, copyName, moveTo, copyTo 等针对特定选中项目的动作全部隐藏
-            return manageType == .paste && !FileCutClipboard.shared.cutURLs.isEmpty
+            // 右键空白背景 (Container) 时：
+            // - “粘贴”：前提是剪切板内有被剪切的文件
+            // - “拷贝完整路径”：拷贝当前文件夹容器本身的完整路径
+            // 此时 cut, permanentDelete, copyName, moveTo, copyTo 等针对特定选中项目的动作隐藏
+            switch manageType {
+            case .paste:
+                return !FileCutClipboard.shared.cutURLs.isEmpty
+            case .copyPath:
+                return true
+            case .cut, .permanentDelete, .copyName, .moveTo, .copyTo:
+                return false
+            }
         } else {
             // 正常选中项目 (Items) 时：
             switch manageType {

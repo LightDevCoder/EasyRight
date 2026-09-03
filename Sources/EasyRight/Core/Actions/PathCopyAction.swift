@@ -40,7 +40,15 @@ public final class PathCopyAction: MenuAction, @unchecked Sendable {
     }
 
     public func isAvailable(for targetURLs: [URL], isContainer: Bool) -> Bool {
-        guard !isContainer, !targetURLs.isEmpty else { return false }
+        if isContainer {
+            switch kind {
+            case .shellEscaped:
+                return true
+            case .gitRelative:
+                return PathCopyService.gitRelativePaths(targetURLs) != nil
+            }
+        }
+        guard !targetURLs.isEmpty else { return false }
         switch kind {
         case .shellEscaped:
             return true
