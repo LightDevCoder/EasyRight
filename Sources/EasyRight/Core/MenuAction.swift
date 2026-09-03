@@ -9,13 +9,31 @@ public enum ActionCategory: String, Codable, CaseIterable, Identifiable, Sendabl
     case utility = "utility"          // 常用小工具（Hash、二维码、图片转换等）
     
     public var id: String { self.rawValue }
+
+    public var displayNameZh: String {
+        switch self {
+        case .newFile: return "新建文件"
+        case .fileManage: return "文件管理"
+        case .terminal: return "终端/编辑器"
+        case .utility: return "实用工具"
+        }
+    }
+
+    public var displayNameEn: String {
+        switch self {
+        case .newFile: return "New File"
+        case .fileManage: return "File Management"
+        case .terminal: return "Terminal & Editor"
+        case .utility: return "Utilities"
+        }
+    }
     
     public var localizedName: String {
         switch self {
-        case .newFile: return L10n.tr("新建文件", "New File")
-        case .fileManage: return L10n.tr("文件管理", "File Management")
-        case .terminal: return L10n.tr("终端/编辑器", "Terminal & Editor")
-        case .utility: return L10n.tr("实用工具", "Utilities")
+        case .newFile: return L10n.tr(displayNameZh, displayNameEn)
+        case .fileManage: return L10n.tr(displayNameZh, displayNameEn)
+        case .terminal: return L10n.tr(displayNameZh, displayNameEn)
+        case .utility: return L10n.tr(displayNameZh, displayNameEn)
         }
     }
 }

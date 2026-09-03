@@ -112,6 +112,8 @@ public enum FinderServiceCatalog {
             item.title.localizedCaseInsensitiveContains(normalizedQuery)
                 || item.actionID.localizedCaseInsensitiveContains(normalizedQuery)
                 || item.category.localizedName.localizedCaseInsensitiveContains(normalizedQuery)
+                || item.category.displayNameZh.localizedCaseInsensitiveContains(normalizedQuery)
+                || item.category.displayNameEn.localizedCaseInsensitiveContains(normalizedQuery)
         }
     }
 

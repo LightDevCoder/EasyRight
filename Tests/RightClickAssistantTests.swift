@@ -9,6 +9,10 @@ final class EasyRightTests: XCTestCase {
     
     override func setUpWithError() throws {
         try super.setUpWithError()
+        AppLanguageManager.shared.language = .zhHans
+        UserDefaults.standard.set("zhHans", forKey: SharedStorageManager.Keys.appLanguage)
+        _ = SharedStorageManager.shared.setString("zhHans", forKey: SharedStorageManager.Keys.appLanguage)
+
         // 创建一个独立的临时目录作为测试运行沙盒，避免对用户磁盘产生脏数据
         let uniqueName = UUID().uuidString
         let temporaryDirectory = FileManager.default.temporaryDirectory.appendingPathComponent(uniqueName)
