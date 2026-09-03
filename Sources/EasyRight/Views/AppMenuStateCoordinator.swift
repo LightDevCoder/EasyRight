@@ -288,28 +288,9 @@ public final class AppMenuStateCoordinator: ObservableObject {
         isLivePreviewPresented.toggle()
     }
 
-    /// 快捷添加常用推荐动作
+    /// 快捷添加常用推荐动作（代表性精选动作与分组）
     public func addRecommendedActions() {
-        let recommendedIds = [
-            "new_file_txt",
-            "new_file_docx",
-            "new_file_xlsx",
-            "terminal_open_terminal",
-            "terminal_open_vscode",
-            "file_manage_copy_path",
-            "utility_calculate_md5",
-            "utility_text_to_qrcode"
-        ]
-        var items: [MenuCanvasItem] = []
-        for id in recommendedIds {
-            if allActions.contains(where: { $0.actionId == id }) {
-                items.append(.action(actionId: id))
-            }
-        }
-        if items.isEmpty {
-            items = storage.defaultCanvasItems()
-        }
-        canvasItems = items
+        canvasItems = storage.defaultCanvasItems()
         scheduleSave()
     }
 

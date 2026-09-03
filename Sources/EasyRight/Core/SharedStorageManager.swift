@@ -969,9 +969,21 @@ public final class SharedStorageManager: @unchecked Sendable {
 
     // MARK: - 画布菜单项目配置 (MenuCanvasItem)
 
-    /// 获取默认画布菜单项排列（基于 DefaultActionRegistry.allActions 的全量动作）
+    /// 获取默认画布菜单项排列（精选最具代表性的常用动作与分组分隔线）
     public func defaultCanvasItems() -> [MenuCanvasItem] {
-        DefaultActionRegistry.allActions.map { MenuCanvasItem.action(actionId: $0.actionId) }
+        return [
+            .action(actionId: "easyright.action.newfile.txt"),
+            .action(actionId: "easyright.action.newfile.md"),
+            .action(actionId: "easyright.action.newfile.docx"),
+            .separator(id: UUID(uuidString: "00000000-0000-0000-0000-000000000001")!),
+            .action(actionId: "easyright.action.filemanage.copyPath"),
+            .action(actionId: "easyright.action.filemanage.cut"),
+            .separator(id: UUID(uuidString: "00000000-0000-0000-0000-000000000002")!),
+            .action(actionId: "easyright.action.terminal.terminal"),
+            .action(actionId: "easyright.action.terminal.vscode"),
+            .separator(id: UUID(uuidString: "00000000-0000-0000-0000-000000000003")!),
+            .action(actionId: "easyright.action.utility.toggleHiddenFiles")
+        ]
     }
 
     /// 获取已保存的画布菜单项配置。如果未显式配置则返回 nil（供调用方回退到旧版分类/平铺逻辑）。
