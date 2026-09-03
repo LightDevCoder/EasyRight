@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/LightDevCoder/EasyRight/actions"><img src="https://github.com/LightDevCoder/EasyRight/workflows/EasyRight%20CI/CD%20Build/badge.svg" alt="CI 状态" /></a>
+  <a href="https://github.com/LightDevCoder/EasyRight/actions/workflows/ci.yml?query=branch%3Amain"><img src="https://github.com/LightDevCoder/EasyRight/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI 状态" /></a>
   <img src="https://img.shields.io/badge/macOS-13.0%2B-blue" alt="macOS 13.0+" />
   <img src="https://img.shields.io/badge/Swift-6.0-orange" alt="Swift 6.0" />
   <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License" />
