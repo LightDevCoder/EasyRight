@@ -535,9 +535,17 @@ if [ -n "$device" ]; then
     end tell
     ' 2>/dev/null || true
     sync
-    hdiutil detach "$device" -force >/dev/null 2>&1 || hdiutil detach "$device" >/dev/null 2>&1 || true
+    hdiutil detach "/Volumes/EasyRight" -force >/dev/null 2>&1 || true
+    hdiutil detach "$device" -force >/dev/null 2>&1 || true
 fi
 sync
+for i in {1..10}; do
+    if [ ! -d "/Volumes/EasyRight" ]; then
+        break
+    fi
+    hdiutil detach "/Volumes/EasyRight" -force >/dev/null 2>&1 || true
+    sleep 0.5
+done
 sleep 1
 
 # D. 转换为正式发布版只读高压缩 DMG (UDZO 格式)

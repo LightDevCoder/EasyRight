@@ -285,7 +285,7 @@ public final class AppMenuStateCoordinator: ObservableObject {
         SystemReloader.postConfigChanged()
     }
 
-    /// 当前画布对应的预设微徽标名称 (Mini / Dev / Max / User)
+    /// 当前画布对应的预设微徽标名称 (Lite / Dev / Max / User)
     public var activePresetBadgeName: String {
         if canvasItems.matchesPresetStructure(StarterPreset.minimalist.canvasItems()) {
             return StarterPreset.minimalist.badgeName

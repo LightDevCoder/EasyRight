@@ -64,7 +64,7 @@ struct LanguageAndPresetTests {
         // Apply Minimalist preset
         coordinator.applyPreset(.minimalist)
         assert(coordinator.canvasItems.count == StarterPreset.minimalist.canvasItems().count, "Canvas count should match Minimalist preset count")
-        assert(coordinator.activePresetBadgeName == "Mini", "Minimalist preset badge must be Mini")
+        assert(coordinator.activePresetBadgeName == "Lite", "Minimalist preset badge must be Lite")
         let loadedItemsMin = storage.getCanvasItems()
         assert(loadedItemsMin?.count == coordinator.canvasItems.count, "Storage items must match applied Minimalist preset")
 
@@ -85,7 +85,7 @@ struct LanguageAndPresetTests {
         // Modify canvas manually -> should become User
         coordinator.addSeparator()
         assert(coordinator.activePresetBadgeName == "User", "Modified canvas badge must be User")
-        print("     ✓ Coordinator applyPreset & badge (Mini/Dev/Max/User): PASSED")
+        print("     ✓ Coordinator applyPreset & badge (Lite/Dev/Max/User): PASSED")
 
         // MARK: 3. PresetSelectionSheet Instantiation
         print("  -> Testing PresetSelectionSheet UI instantiation...")
