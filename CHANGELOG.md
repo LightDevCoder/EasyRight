@@ -26,6 +26,14 @@ Welcome to the initial public release of **EasyRight** (`v0.1.0`)!
   - Live native Finder menu preview reflecting custom changes with sub-millisecond fidelity.
 - **Diagnostics & Health Capsule**:
   - Ambient health monitoring and diagnostic drawer to verify Full Disk Access, FinderSync IPC heartbeats, and queue health.
+- **Bilingual Interface & Instant Language Switching**:
+  - Global real-time language switching (Simplified Chinese / English) in Preferences with dynamic in-place UI re-rendering without requiring app restart.
+- **Dynamic Layout Presets & Quick Access**:
+  - One-click starter preset switcher (Lite, Dev, Max) directly accessible by clicking the top-left title or from Preferences.
+  - Dynamic responsive title badge (`EasyRight [Lite]`, `[Dev]`, `[Max]`, or `[User]` when customized).
+- **Refined Light App Icon & DMG Custom Volume Icon**:
+  - Crisp, modern light-themed app icon with transparent squircle shadow.
+  - Native `.VolumeIcon.icns` injection with custom icon attribute enabled for the DMG installer.
 - **Decoupled Architecture**:
   - Dual-process model: High-performance `FIFinderSync` extension decoupled from the host App for zero-lag context-menu display.
   - Zero external dependencies, written 100% in Swift, SwiftUI, and AppKit.
