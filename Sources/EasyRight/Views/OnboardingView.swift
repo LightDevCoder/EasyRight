@@ -20,6 +20,15 @@ public enum StarterPreset: String, CaseIterable, Identifiable, Sendable {
 
     public var id: String { rawValue }
 
+    /// 预设徽标单单词名称 (Mini / Dev / Max)
+    public var badgeName: String {
+        switch self {
+        case .minimalist: return "Mini"
+        case .developer: return "Dev"
+        case .powerUser: return "Max"
+        }
+    }
+
     public var title: String {
         switch self {
         case .minimalist: return L10n.tr("极简日常", "Minimalist")

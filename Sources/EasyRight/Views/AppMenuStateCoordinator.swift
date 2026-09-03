@@ -285,6 +285,19 @@ public final class AppMenuStateCoordinator: ObservableObject {
         SystemReloader.postConfigChanged()
     }
 
+    /// 当前画布对应的预设微徽标名称 (Mini / Dev / Max / User)
+    public var activePresetBadgeName: String {
+        if canvasItems.matchesPresetStructure(StarterPreset.minimalist.canvasItems()) {
+            return StarterPreset.minimalist.badgeName
+        } else if canvasItems.matchesPresetStructure(StarterPreset.developer.canvasItems()) {
+            return StarterPreset.developer.badgeName
+        } else if canvasItems.matchesPresetStructure(StarterPreset.powerUser.canvasItems()) {
+            return StarterPreset.powerUser.badgeName
+        } else {
+            return "User"
+        }
+    }
+
     /// 清空画布中的所有菜单项
     public func clearAll() {
         canvasItems.removeAll()
@@ -437,5 +450,24 @@ public final class AppMenuStateCoordinator: ObservableObject {
         _ = storage.removeValue(forKey: SharedStorageManager.Keys.customAppActions)
         allActions = DefaultActionRegistry.allActions
         scheduleSave(immediate: true)
+    }
+}
+
+extension Array where Element == MenuCanvasItem {
+    public func matchesPresetStructure(_ presetItems: [MenuCanvasItem]) -> Bool {
+        guard count == presetItems.count else { return false }
+        for (a, b) in zip(self, presetItems) {
+            switch (a, b) {
+            case (.action(let id1), .action(let id2)):
+                if id1 != id2 { return false }
+            case (.separator, .separator):
+                continue
+            case (.submenu(_, let t1, let ids1), .submenu(_, let t2, let ids2)):
+                if t1 != t2 || ids1 != ids2 { return false }
+            default:
+                return false
+            }
+        }
+        return true
     }
 }

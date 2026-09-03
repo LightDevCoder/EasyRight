@@ -201,7 +201,7 @@ public struct MainWindowView: View {
                             .font(DesignTokens.Typography.windowTitle)
                             .foregroundStyle(DesignTokens.Colors.primaryText)
 
-                        Text("Studio")
+                        Text(coordinator.activePresetBadgeName)
                             .font(DesignTokens.Typography.caption2)
                             .foregroundStyle(DesignTokens.Colors.tertiaryText)
                             .padding(.horizontal, 4)

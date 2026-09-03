@@ -64,21 +64,28 @@ struct LanguageAndPresetTests {
         // Apply Minimalist preset
         coordinator.applyPreset(.minimalist)
         assert(coordinator.canvasItems.count == StarterPreset.minimalist.canvasItems().count, "Canvas count should match Minimalist preset count")
+        assert(coordinator.activePresetBadgeName == "Mini", "Minimalist preset badge must be Mini")
         let loadedItemsMin = storage.getCanvasItems()
         assert(loadedItemsMin?.count == coordinator.canvasItems.count, "Storage items must match applied Minimalist preset")
 
         // Apply Developer preset
         coordinator.applyPreset(.developer)
         assert(coordinator.canvasItems.count == StarterPreset.developer.canvasItems().count, "Canvas count should match Developer preset count")
+        assert(coordinator.activePresetBadgeName == "Dev", "Developer preset badge must be Dev")
         let loadedItemsDev = storage.getCanvasItems()
         assert(loadedItemsDev?.count == coordinator.canvasItems.count, "Storage items must match applied Developer preset")
 
         // Apply Power User preset
         coordinator.applyPreset(.powerUser)
         assert(coordinator.canvasItems.count == StarterPreset.powerUser.canvasItems().count, "Canvas count should match Power User preset count")
+        assert(coordinator.activePresetBadgeName == "Max", "Power User preset badge must be Max")
         let loadedItemsPower = storage.getCanvasItems()
         assert(loadedItemsPower?.count == coordinator.canvasItems.count, "Storage items must match applied Power User preset")
-        print("     ✓ Coordinator applyPreset: PASSED")
+
+        // Modify canvas manually -> should become User
+        coordinator.addSeparator()
+        assert(coordinator.activePresetBadgeName == "User", "Modified canvas badge must be User")
+        print("     ✓ Coordinator applyPreset & badge (Mini/Dev/Max/User): PASSED")
 
         // MARK: 3. PresetSelectionSheet Instantiation
         print("  -> Testing PresetSelectionSheet UI instantiation...")
