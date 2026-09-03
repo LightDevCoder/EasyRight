@@ -435,4 +435,18 @@ public final class AppMenuStateCoordinator: ObservableObject {
         allActions = DefaultActionRegistry.allActions
         scheduleSave(immediate: true)
     }
+
+    /// 清空所有自定义应用动作与对应配置文件
+    public func clearAllCustomAppActions() {
+        for action in customAppActions {
+            let actionId = "easyright.action.customapp.\(action.id.uuidString)"
+            ActionDispatcher.shared.unregister(actionId: actionId)
+            canvasItems.removeAll { $0.actionId == actionId }
+        }
+        customAppActions.removeAll()
+        _ = storage.saveCustomAppActions([], postNotification: true)
+        _ = storage.removeValue(forKey: SharedStorageManager.Keys.customAppActions)
+        allActions = DefaultActionRegistry.allActions
+        scheduleSave(immediate: true)
+    }
 }

@@ -10,6 +10,7 @@ public struct CustomAppsSettingsView: View {
     @ObservedObject public var coordinator: AppMenuStateCoordinator
     @State private var editingAction: CustomAppAction? = nil
     @State private var showEditSheet: Bool = false
+    @State private var showClearConfirmation: Bool = false
 
     @MainActor
     public init(coordinator: AppMenuStateCoordinator) {
@@ -64,6 +65,30 @@ public struct CustomAppsSettingsView: View {
             }
 
             Spacer()
+
+            if !coordinator.customAppActions.isEmpty {
+                Button(role: .destructive) {
+                    showClearConfirmation = true
+                } label: {
+                    Label("清空全部", systemImage: "trash")
+                        .font(.system(size: 12))
+                }
+                .buttonStyle(.bordered)
+                .confirmationDialog(
+                    "确认清空所有自定义应用动作？",
+                    isPresented: $showClearConfirmation,
+                    titleVisibility: .visible
+                ) {
+                    Button("清空并删除配置", role: .destructive) {
+                        withAnimation(DesignTokens.AnimationToken.quickSpring) {
+                            coordinator.clearAllCustomAppActions()
+                        }
+                    }
+                    Button("取消", role: .cancel) {}
+                } message: {
+                    Text("所有自定义应用动作都将从访达右键菜单及画布中移除，配置文件将被彻底删除。此操作无法撤销。")
+                }
+            }
 
             Button {
                 pickAndAddApp()

@@ -142,11 +142,13 @@ struct AdvancedSettingsView: View {
             SharedStorageManager.Keys.enableDebugLogging,
             SharedStorageManager.Keys.menuLayoutMode,
             SharedStorageManager.Keys.watchScope,
+            SharedStorageManager.Keys.customAppActions,
             LaunchPresentationPolicy.silentLaunchKey
         ]
         let defaultDirectories = SharedStorageManager.defaultWatchedDirectoryPaths(
             homePath: NSHomeDirectory()
         )
+        _ = SharedStorageManager.shared.removeValue(forKey: SharedStorageManager.Keys.customAppActions)
         guard SharedStorageManager.shared.applyConfigurationChanges(
             stringArrayValues: [
                 SharedStorageManager.Keys.actionProfile: [ActionProfile.essential.rawValue],
@@ -159,7 +161,7 @@ struct AdvancedSettingsView: View {
             return
         }
 
-        finishReset(content: "动作、收藏、菜单、Finder 范围与提示设置均已重置")
+        finishReset(content: "动作、自定义应用、收藏、菜单与 Finder 设置均已重置")
     }
 
     private func finishReset(content: String) {
