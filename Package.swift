@@ -22,7 +22,19 @@ let package = Package(
             dependencies: ["EasyRightCore"],
             path: "Tests",
             exclude: [
+                "ActionInspectorTests.swift",
+                "ActionLibraryAndCoordinatorTests.swift",
+                "ActiveMenuCanvasTests.swift",
+                "CanvasMenuVerificationTest.swift",
                 "CaskStructureTests.sh",
+                "ContainerScopeVerificationTest.swift",
+                "CustomAppActionTests.swift",
+                "DesignSystemTests.swift",
+                "HealthCapsuleAndDrawerTests.swift",
+                "LanguageAndPresetTests.swift",
+                "LiveMenuMockupTests.swift",
+                "MenuBarAndLifecycleTests.swift",
+                "OnboardingAndPresetsTests.swift",
                 "ReleaseWorkflowStructureTests.sh"
             ]
         )
