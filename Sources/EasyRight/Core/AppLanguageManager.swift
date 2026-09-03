@@ -9,6 +9,15 @@ public enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
 
     public var id: String { rawValue }
 
+    public init?(rawValue: String) {
+        switch rawValue {
+        case "system": self = .system
+        case "zh-Hans", "zhHans", "zh_CN", "zh": self = .zhHans
+        case "en", "en_US": self = .en
+        default: return nil
+        }
+    }
+
     public var displayName: String {
         switch self {
         case .system:
