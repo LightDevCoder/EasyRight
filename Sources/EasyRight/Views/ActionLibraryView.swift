@@ -345,7 +345,9 @@ public struct ActionLibraryRowView: View {
             isHovered = hovering
         }
         .onDrag {
-            NSItemProvider(object: action.actionId as NSString)
+            coordinator.draggingActionId = action.actionId
+            coordinator.draggingCanvasItem = nil
+            return NSItemProvider(object: action.actionId as NSString)
         }
     }
 

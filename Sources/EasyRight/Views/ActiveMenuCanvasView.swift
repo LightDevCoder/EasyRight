@@ -330,7 +330,7 @@ public struct ActiveMenuCanvasView: View {
                         canvasItemRow(item: item, index: index)
                     }
                     .onDrop(
-                        of: [.plainText, .text],
+                        of: [.plainText, .text, .utf8PlainText],
                         isTargeted: Binding(
                             get: { targetedDropIndex == index },
                             set: { targeted in
@@ -431,7 +431,7 @@ public struct ActiveMenuCanvasView: View {
         }
         .padding(.top, 4)
         .onDrop(
-            of: [.plainText, .text],
+            of: [.plainText, .text, .utf8PlainText],
             isTargeted: Binding(
                 get: { isBottomTargeted },
                 set: { targeted in
@@ -501,7 +501,7 @@ public struct ActiveMenuCanvasView: View {
         .padding(DesignTokens.Spacing.lg)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onDrop(
-            of: [.plainText, .text],
+            of: [.plainText, .text, .utf8PlainText],
             isTargeted: nil,
             perform: { providers in
                 handleDrop(providers: providers, at: 0)
@@ -533,6 +533,29 @@ public struct ActiveMenuCanvasView: View {
 
     // MARK: - Drop Handling
     private func handleDrop(providers: [NSItemProvider], at targetIndex: Int) -> Bool {
+        // 1. 画布内部项重排：直接走内存直通通道同步生效，零延迟、100% 可靠，彻底根治异步回调被系统丢弃导致的“放手弹回原位”Bug
+        if let directItem = coordinator.draggingCanvasItem {
+            withAnimation(DesignTokens.springTransition) {
+                coordinator.handleDrop(identifier: directItem.id, at: targetIndex)
+                targetedDropIndex = nil
+                isBottomTargeted = false
+                coordinator.draggingCanvasItem = nil
+            }
+            return true
+        }
+
+        // 2. 动作资源库拖拽添加：同样走内存直通通道同步生效
+        if let directActionId = coordinator.draggingActionId {
+            withAnimation(DesignTokens.springTransition) {
+                coordinator.handleDrop(identifier: directActionId, at: targetIndex)
+                targetedDropIndex = nil
+                isBottomTargeted = false
+                coordinator.draggingActionId = nil
+            }
+            return true
+        }
+
+        // 3. 兜底策略：兼容外部 NSPasteboard 载入
         guard let provider = providers.first else { return false }
         if provider.canLoadObject(ofClass: NSString.self) {
             _ = provider.loadObject(ofClass: NSString.self) { stringItem, _ in
@@ -542,6 +565,8 @@ public struct ActiveMenuCanvasView: View {
                         coordinator.handleDrop(identifier: identifier, at: targetIndex)
                         targetedDropIndex = nil
                         isBottomTargeted = false
+                        coordinator.draggingCanvasItem = nil
+                        coordinator.draggingActionId = nil
                     }
                 }
             }
@@ -730,7 +755,9 @@ public struct CanvasActionRowView: View {
             isHovered = hovering
         }
         .onDrag {
-            NSItemProvider(object: itemId as NSString)
+            coordinator.draggingCanvasItem = coordinator.canvasItems.first(where: { $0.id == itemId })
+            coordinator.draggingActionId = nil
+            return NSItemProvider(object: itemId as NSString)
         }
     }
 }
@@ -840,7 +867,9 @@ public struct CanvasSeparatorRowView: View {
             isHovered = hovering
         }
         .onDrag {
-            NSItemProvider(object: itemId as NSString)
+            coordinator.draggingCanvasItem = coordinator.canvasItems.first(where: { $0.id == itemId })
+            coordinator.draggingActionId = nil
+            return NSItemProvider(object: itemId as NSString)
         }
     }
 }
@@ -985,7 +1014,9 @@ public struct CanvasSubmenuRowView: View {
             isHovered = hovering
         }
         .onDrag {
-            NSItemProvider(object: itemId as NSString)
+            coordinator.draggingCanvasItem = coordinator.canvasItems.first(where: { $0.id == itemId })
+            coordinator.draggingActionId = nil
+            return NSItemProvider(object: itemId as NSString)
         }
     }
 

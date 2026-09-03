@@ -48,6 +48,12 @@ public final class AppMenuStateCoordinator: ObservableObject {
     /// 是否在动作画布中显示 1:1 实时原生菜单预览面板 (Issue 06)
     @Published public var isLivePreviewPresented: Bool = true
 
+    /// 当前正在画布中被拖拽的菜单项（内存直通通道，实现 100% 同步即时重排，消除系统异步 NSItemProvider 回调延迟被丢弃导致的弹回 Bug）
+    public var draggingCanvasItem: MenuCanvasItem? = nil
+
+    /// 当前正在从动作库中被拖拽的动作 ID（内存直通通道）
+    public var draggingActionId: String? = nil
+
     // MARK: - Internal Storage & Debounce State
 
     private let storage: SharedStorageManager
@@ -321,13 +327,7 @@ public final class AppMenuStateCoordinator: ObservableObject {
 
         // 1. 画布内现有项按 item.id 匹配 (如 action:xxx, separator:uuid, submenu:uuid)
         if let existingIndex = canvasItems.firstIndex(where: { $0.id == identifier }) {
-            if existingIndex == clampedTarget || (existingIndex == clampedTarget - 1 && clampedTarget == canvasItems.count) {
-                return
-            }
-            let item = canvasItems.remove(at: existingIndex)
-            let insertIndex = existingIndex < clampedTarget ? (clampedTarget - 1) : clampedTarget
-            let safeInsertIndex = max(0, min(insertIndex, canvasItems.count))
-            canvasItems.insert(item, at: safeInsertIndex)
+            canvasItems.move(fromOffsets: IndexSet(integer: existingIndex), toOffset: clampedTarget)
             scheduleSave()
             return
         }
@@ -337,13 +337,7 @@ public final class AppMenuStateCoordinator: ObservableObject {
 
         // 若已经在画布中，则重排
         if let existingIndex = canvasItems.firstIndex(where: { $0.actionId == rawActionId }) {
-            if existingIndex == clampedTarget || (existingIndex == clampedTarget - 1 && clampedTarget == canvasItems.count) {
-                return
-            }
-            let item = canvasItems.remove(at: existingIndex)
-            let insertIndex = existingIndex < clampedTarget ? (clampedTarget - 1) : clampedTarget
-            let safeInsertIndex = max(0, min(insertIndex, canvasItems.count))
-            canvasItems.insert(item, at: safeInsertIndex)
+            canvasItems.move(fromOffsets: IndexSet(integer: existingIndex), toOffset: clampedTarget)
             scheduleSave()
             return
         }
