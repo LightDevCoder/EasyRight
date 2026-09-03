@@ -1,0 +1,181 @@
+name: EasyRight CI/CD Build
+
+on:
+  push:
+    branches: ["main", "master"]
+    tags: ["v*"]
+  pull_request:
+    branches: ["main", "master"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Unit, Script And Cask Tests
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Show toolchain
+        run: |
+          xcrun --show-sdk-path
+          swift --version
+
+      - name: Run Swift tests
+        run: swift test
+
+      - name: Validate scripts and Cask structure
+        run: |
+          bash -n Scripts/*.sh
+          for test_script in Tests/*StructureTests.sh; do bash "$test_script"; done
+          CASK_VERIFY_DOWNLOAD=0 ./Scripts/validate_cask.sh
+          python3 -m py_compile Scripts/stress/run_stress.py Scripts/stress/run_reclaim_stress.py
+
+  build:
+    name: Build Development Universal 2 Artifacts
+    if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+    runs-on: macos-latest
+    needs: test
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Build development artifacts
+        run: ./Scripts/build.sh
+
+      - name: Verify development artifacts
+        run: |
+          codesign --verify --deep --strict --verbose=2 build/EasyRight.app
+          quick_service_helper="build/EasyRight.app/Contents/Resources/EasyRightQuickService"
+          test -x "$quick_service_helper"
+          codesign --verify --strict --verbose=2 "$quick_service_helper"
+          architectures="$(lipo -archs "$quick_service_helper")"
+          [[ "$architectures" == *arm64* ]]
+          [[ "$architectures" == *x86_64* ]]
+          hdiutil verify build/EasyRight.dmg
+
+      - name: Upload development artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: EasyRight-Universal2-development
+          path: |
+            build/EasyRight.zip
+            build/EasyRight.dmg
+          retention-days: 14
+
+  release:
+    name: Ad-hoc Community Tag Release
+    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+    runs-on: macos-latest
+    needs: test
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Validate tag and version
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: ./Scripts/verify_release_metadata.sh
+
+      - name: Build Ad-hoc community release
+        env:
+          DISTRIBUTION_ROUTE: website-dev
+        run: ./Scripts/build.sh
+
+      - name: Verify community signature, architectures and metadata
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+          VERIFY_BUILD_ARTIFACTS: "1"
+        run: |
+          ./Scripts/verify_release_metadata.sh
+          codesign --verify --deep --strict --verbose=2 build/EasyRight.app
+          hdiutil verify build/EasyRight.dmg
+
+          for bundle in \
+            build/EasyRight.app \
+            build/EasyRight.app/Contents/PlugIns/EasyRightExtension.appex \
+            build/EasyRight.app/Contents/Resources/EasyRightQuickService; do
+            signature_info="$(codesign -dv --verbose=4 "$bundle" 2>&1)"
+            grep -q 'Signature=adhoc' <<<"$signature_info"
+            grep -q 'TeamIdentifier=not set' <<<"$signature_info"
+          done
+
+          for executable in \
+            build/EasyRight.app/Contents/MacOS/EasyRight \
+            build/EasyRight.app/Contents/PlugIns/EasyRightExtension.appex/Contents/MacOS/EasyRightExtension \
+            build/EasyRight.app/Contents/Resources/EasyRightQuickService; do
+            architectures="$(lipo -archs "$executable")"
+            [[ "$architectures" == *arm64* ]]
+            [[ "$architectures" == *x86_64* ]]
+          done
+
+      - name: Prepare immutable and latest release assets
+        run: |
+          VERSION="$(tr -d '\r\n' < VERSION)"
+          cp build/EasyRight.zip "build/EasyRight-v${VERSION}-macOS-Universal.zip"
+          cp build/EasyRight.dmg "build/EasyRight-v${VERSION}-macOS-Universal.dmg"
+          cp build/EasyRight.zip build/EasyRight-Latest.zip
+          cp build/EasyRight.dmg build/EasyRight-Latest.dmg
+          cat > build/COMMUNITY_BUILD.txt <<EOF
+          Version: ${VERSION}
+          Distribution: Ad-hoc community build
+          Developer ID signed: No
+          Apple notarized: No
+          Architectures: arm64, x86_64
+          Source tag: v${VERSION}
+          EOF
+          cd build
+          LC_ALL=C LANG=C shasum -a 256 \
+            "EasyRight-v${VERSION}-macOS-Universal.zip" \
+            "EasyRight-v${VERSION}-macOS-Universal.dmg" \
+            EasyRight-Latest.zip \
+            EasyRight-Latest.dmg \
+            COMMUNITY_BUILD.txt > SHA256SUMS
+
+      - name: Upload community workflow artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: EasyRight-${{ github.ref_name }}-community
+          path: |
+            build/EasyRight-v*-macOS-Universal.zip
+            build/EasyRight-v*-macOS-Universal.dmg
+            build/EasyRight-Latest.zip
+            build/EasyRight-Latest.dmg
+            build/COMMUNITY_BUILD.txt
+            build/SHA256SUMS
+          retention-days: 30
+
+      - name: Publish GitHub release
+        run: |
+          ASSETS=(
+            build/EasyRight-v*-macOS-Universal.zip
+            build/EasyRight-v*-macOS-Universal.dmg
+            build/EasyRight-Latest.zip
+            build/EasyRight-Latest.dmg
+            build/COMMUNITY_BUILD.txt
+            build/SHA256SUMS
+          )
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            echo "Release $GITHUB_REF_NAME already exists; refusing to replace immutable assets." >&2
+            exit 1
+          fi
+          COMMUNITY_NOTICE=$'> [!WARNING]\n> **Ad-hoc / Not notarized community build.** This free open-source build is not signed with an Apple Developer ID and has not been notarized by Apple. macOS may require Control-click -> Open or approval in System Settings -> Privacy & Security. Homebrew installation does not change this status.\n\n> **Ad-hoc / 未经 Apple 公证的社区构建。** 该免费开源版本未使用 Apple Developer ID 签名，macOS 可能需要通过 Control 点击“打开”，或在“系统设置 -> 隐私与安全性”中手动允许。Homebrew 安装不会改变该状态。'
+          gh release create "$GITHUB_REF_NAME" "${ASSETS[@]}" \
+            --verify-tag \
+            --fail-on-no-commits \
+            --generate-notes \
+            --latest \
+            --title "$GITHUB_REF_NAME Community Build" \
+            --notes "$COMMUNITY_NOTICE"

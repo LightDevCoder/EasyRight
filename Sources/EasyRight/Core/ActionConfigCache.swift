@@ -1,0 +1,86 @@
+import Foundation
+
+/// 动作配置进程内缓存。
+///
+/// FinderSync 扩展的 `menu(for:)` 是右键菜单弹出主热路径，每次会针对 30+ 个 action
+/// 调用 `isActionEnabled` 与 `isFavoriteAction`。原实现每次都走 UserDefaults + config.json
+/// 双读，会让首次右键明显延迟。
+///
+/// 本缓存：
+/// - 进程启动时 `preheat()` 把 favoriteActionIds 一次性读入；enable_action_* 按需懒加载
+/// - 收到 `configChanged` 分布式通知或主 App 写配置后，调用 `invalidate()`
+/// - 读路径全部 O(1) 内存查询
+public final class ActionConfigCache: @unchecked Sendable {
+    public static let shared = ActionConfigCache(storage: SharedStorageManager.shared)
+
+    private let queue = DispatchQueue(label: "com.easyright.ActionConfigCache", attributes: .concurrent)
+    private let storage: SharedStorageManager
+    private var enableMap: [String: Bool] = [:]
+    private var favoriteSet: Set<String> = []
+    private var cachedMenuLayoutMode: MenuLayoutMode = .flat
+    private var cachedCanvasItems: [MenuCanvasItem]? = nil
+    private var configChangedObserver: NSObjectProtocol?
+
+    init(storage: SharedStorageManager) {
+        self.storage = storage
+        configChangedObserver = DistributedNotificationCenter.default().addObserver(
+            forName: Notification.Name("com.easyright.app.configChanged"),
+            object: nil,
+            queue: nil
+        ) { [weak self] _ in
+            self?.invalidate()
+        }
+    }
+
+    deinit {
+        if let configChangedObserver {
+            DistributedNotificationCenter.default().removeObserver(configChangedObserver)
+        }
+    }
+
+    /// 一次性预热：清空懒加载表，重读 favoriteActionIds 与 canvasItems。供进程启动时调用。
+    public func preheat() {
+        queue.sync(flags: .barrier) {
+            self.enableMap.removeAll(keepingCapacity: true)
+            self.favoriteSet = Set(storage.favoriteActionIds)
+            self.cachedMenuLayoutMode = storage.menuLayoutMode
+            self.cachedCanvasItems = storage.getCanvasItems()
+        }
+    }
+
+    /// 失效全部缓存。下一次读取时按需重新从 SharedStorageManager 拉。
+    public func invalidate() {
+        queue.sync(flags: .barrier) {
+            self.enableMap.removeAll(keepingCapacity: true)
+            self.favoriteSet = Set(storage.favoriteActionIds)
+            self.cachedMenuLayoutMode = storage.menuLayoutMode
+            self.cachedCanvasItems = storage.getCanvasItems()
+        }
+    }
+
+    /// 查询 action 启用状态。miss 时回源 SharedStorageManager 并填入缓存。
+    public func isEnabled(_ actionId: String, default defaultValue: Bool) -> Bool {
+        if let cached = queue.sync(execute: { enableMap[actionId] }) {
+            return cached
+        }
+        let v = storage.getBool(forKey: "enable_action_\(actionId)", defaultValue: defaultValue)
+        // 必须 sync barrier：menu(for:) 主路径会在毫秒级内对同一 actionId 连续读多次，
+        // 异步 barrier 会让"第二次读"在 barrier 落库前看不到首次回源结果，从而再次穿透到底层 IO。
+        queue.sync(flags: .barrier) { self.enableMap[actionId] = v }
+        return v
+    }
+
+    /// 查询 action 是否在收藏集中。
+    public func isFavorite(_ actionId: String) -> Bool {
+        return queue.sync { favoriteSet.contains(actionId) }
+    }
+
+    public var menuLayoutMode: MenuLayoutMode {
+        return queue.sync { cachedMenuLayoutMode }
+    }
+
+    /// 画布项目配置缓存。如果未配置则返回 nil，表示应使用分类/平铺回退。
+    public var canvasItems: [MenuCanvasItem]? {
+        return queue.sync { cachedCanvasItems }
+    }
+}

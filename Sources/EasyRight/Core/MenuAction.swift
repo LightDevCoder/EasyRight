@@ -1,0 +1,144 @@
+import Foundation
+import AppKit
+
+/// 表示右键动作分类
+public enum ActionCategory: String, Codable, CaseIterable, Identifiable, Sendable {
+    case newFile = "newFile"          // 新建文件
+    case fileManage = "fileManage"    // 文件管理（复制、剪切、彻底删除等）
+    case terminal = "terminal"        // 终端与编辑器联动
+    case utility = "utility"          // 常用小工具（Hash、二维码、图片转换等）
+    
+    public var id: String { self.rawValue }
+    
+    public var localizedName: String {
+        switch self {
+        case .newFile: return "新建文件"
+        case .fileManage: return "文件管理"
+        case .terminal: return "终端/编辑器"
+        case .utility: return "实用工具"
+        }
+    }
+}
+
+/// 设置页中的动作分组。
+public enum SettingsActionGroup: String, Codable, Sendable {
+    case standard
+    case advanced
+}
+
+public enum ActionCompletionStatus: Equatable, Sendable {
+    case succeeded
+    case failed
+    case cancelled
+}
+
+public enum ActionSubmission: Equatable, Sendable {
+    case accepted
+    case rejected
+}
+
+/// 统一的右键动作抽象接口
+public protocol MenuAction {
+    /// 唯一标识符，用于分发调度
+    var actionId: String { get }
+    
+    /// 显示在右键菜单中的国际化标题
+    var localizedTitle: String { get }
+    
+    /// 图标名称（System Symbol 或本地资源）
+    var iconName: String? { get }
+    
+    /// 动作所属分类
+    var category: ActionCategory { get }
+
+    /// 依赖的应用 bundle identifier；无外部应用依赖时为 nil。
+    var associatedBundleIdentifier: String? { get }
+
+    /// 动作能力层级，用于档案批量开关与设置页分组。
+    var tier: ActionTier { get }
+
+    /// 执行前是否必须至少有一个仍存在的目标路径。
+    var requiresExistingTargets: Bool { get }
+
+    /// 是否默认启用。破坏性或会重启系统组件的动作应默认关闭，由用户显式开启。
+    var isEnabledByDefault: Bool { get }
+
+    /// 是否属于高级/高风险动作，用于设置界面分组与提示。
+    var isHighRisk: Bool { get }
+
+    /// 高风险动作说明，展示给用户作为开启前的上下文。
+    var riskDescription: String? { get }
+
+    /// 设置页动作分组。
+    var settingsGroup: SettingsActionGroup { get }
+    
+    /// 判断此动作在当前选中的文件/文件夹下是否可用
+    /// - Parameter urls: 用户右键选中的资源列表
+    func isAvailable(for targetURLs: [URL]) -> Bool
+    
+    /// 判断此动作在自适应上下文（如右键空白背景）下是否可用
+    /// - Parameters:
+    ///   - targetURLs: 用户右键选中的资源列表
+    ///   - isContainer: 是否为右键空白背景容器本身
+    func isAvailable(for targetURLs: [URL], isContainer: Bool) -> Bool
+    
+    /// 执行动作
+    /// - Parameter targetURLs: 用户右键选中的资源列表
+    /// - Returns: 是否执行成功
+    func execute(targetURLs: [URL]) -> Bool
+
+    /// 提交动作并在真实终态回调。异步动作必须覆盖默认实现。
+    func submit(
+        targetURLs: [URL],
+        completion: @escaping @Sendable (ActionCompletionStatus) -> Void
+    ) -> ActionSubmission
+}
+
+// 提供默认实现
+public extension MenuAction {
+    func isAvailable(for targetURLs: [URL]) -> Bool {
+        // 默认情况下，只要选中了对象，或者在空白处（此时 urls 为当前路径）就可用
+        return true
+    }
+    
+    func isAvailable(for targetURLs: [URL], isContainer: Bool) -> Bool {
+        // 默认转发至老接口，保持向后兼容。
+        return isAvailable(for: targetURLs)
+    }
+    
+    var associatedBundleIdentifier: String? {
+        return nil
+    }
+
+    var tier: ActionTier {
+        return isHighRisk ? .advanced : .professional
+    }
+
+    var requiresExistingTargets: Bool {
+        return true
+    }
+
+    var isEnabledByDefault: Bool {
+        return true
+    }
+
+    var isHighRisk: Bool {
+        return false
+    }
+
+    var riskDescription: String? {
+        return nil
+    }
+
+    var settingsGroup: SettingsActionGroup {
+        return isHighRisk ? .advanced : .standard
+    }
+
+    func submit(
+        targetURLs: [URL],
+        completion: @escaping @Sendable (ActionCompletionStatus) -> Void
+    ) -> ActionSubmission {
+        completion(execute(targetURLs: targetURLs) ? .succeeded : .failed)
+        return .accepted
+    }
+}

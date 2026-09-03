@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- website 路线主 App：非 sandbox。
+         详细说明见 docs/distribution/mac-app-store-architecture.md 第 7 节。
+         注：codesign 的 entitlements 解析器对 XML-like token 敏感，本注释保持纯文字。 -->
+    <key>com.apple.security.application-groups</key>
+    <array>
+        <string>group.com.easyright.app</string>
+    </array>
+</dict>
+</plist>
