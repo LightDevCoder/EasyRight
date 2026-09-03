@@ -74,7 +74,12 @@ public struct MainWindowView: View {
                 topToolbar
                     .frame(height: DesignTokens.Layout.toolbarHeight)
                     .padding(.horizontal, DesignTokens.Spacing.toolbarHorizontal)
-                    .background(DesignTokens.Colors.cardBackground.opacity(0.35))
+                    .background(
+                        ZStack {
+                            DesignTokens.Colors.cardBackground.opacity(0.35)
+                            WindowDragArea()
+                        }
+                    )
 
                 Divider()
                     .overlay(DesignTokens.Stroke.defaultBorder)

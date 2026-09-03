@@ -80,7 +80,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         )
         window.titlebarAppearsTransparent = true
         window.titleVisibility = .hidden
-        window.isMovableByWindowBackground = true
+        // 【关键修复】：必须显式禁用全窗口背景移动，否则 AppKit 会将列表项、画布拖拽排序手柄及子菜单的
+        // 拖拽手势（.onDrag）错误拦截为移动整个主窗口，导致用户拖拽动作重排时把窗口拖跑了！
+        // 窗口移动能力由 MainWindowView 顶部工具栏专属的 WindowDragArea 提供。
+        window.isMovableByWindowBackground = false
         
         window.delegate = self // 【关键修复】：指定 Window 代理，使 windowShouldClose 方法能被正确触发
         window.title = "EasyRight"

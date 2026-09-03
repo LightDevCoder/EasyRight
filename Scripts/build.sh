@@ -338,7 +338,9 @@ EXT_SOURCES="
 "
 
 SDK_PATH=$(xcrun --show-sdk-path)
-COMMON_FLAGS="-Onone -parse-as-library -sdk $SDK_PATH -vfsoverlay $BUILD_DIR/overlay.yaml"
+MODULE_CACHE_DIR="$BUILD_DIR/ModuleCache"
+mkdir -p "$MODULE_CACHE_DIR"
+COMMON_FLAGS="-Onone -parse-as-library -sdk $SDK_PATH -vfsoverlay $BUILD_DIR/overlay.yaml -module-cache-path $MODULE_CACHE_DIR -Xcc -fmodules-cache-path=$MODULE_CACHE_DIR"
 
 # 按分发路线注入编译期常量，供 Sources/EasyRight/Core/Distribution.swift 读取
 case "$DISTRIBUTION_ROUTE" in
@@ -372,9 +374,11 @@ QUICK_SERVICE_SOURCES="
     Sources/EasyRight/Core/FinderQuickServiceProtocol.swift
 "
 swiftc -Onone -sdk "$SDK_PATH" -vfsoverlay "$BUILD_DIR/overlay.yaml" \
+    -module-cache-path "$MODULE_CACHE_DIR" -Xcc -fmodules-cache-path="$MODULE_CACHE_DIR" \
     -target arm64-apple-macosx13.0 $QUICK_SERVICE_SOURCES \
     -o "$BUILD_DIR/EasyRightQuickService_arm64"
 swiftc -Onone -sdk "$SDK_PATH" -vfsoverlay "$BUILD_DIR/overlay.yaml" \
+    -module-cache-path "$MODULE_CACHE_DIR" -Xcc -fmodules-cache-path="$MODULE_CACHE_DIR" \
     -target x86_64-apple-macosx13.0 $QUICK_SERVICE_SOURCES \
     -o "$BUILD_DIR/EasyRightQuickService_x86_64"
 lipo -create \
@@ -396,10 +400,14 @@ lipo -create -output "$EXT_BUNDLE/Contents/MacOS/EasyRightExtension" "$BUILD_DIR
 
 # 8. 编译 ActionVerifier 工具 (arm64 与 x86_64)
 echo "🛠️ [Build] 编译 ActionVerifier 校验程序 (arm64)..."
-swiftc -Onone -parse-as-library -sdk $SDK_PATH -vfsoverlay "$BUILD_DIR/overlay.yaml" -target arm64-apple-macosx13.0 Sources/ActionVerifier/ActionVerifier.swift -o "$BUILD_DIR/ActionVerifier_arm64"
+swiftc -Onone -parse-as-library -sdk $SDK_PATH -vfsoverlay "$BUILD_DIR/overlay.yaml" \
+    -module-cache-path "$MODULE_CACHE_DIR" -Xcc -fmodules-cache-path="$MODULE_CACHE_DIR" \
+    -target arm64-apple-macosx13.0 Sources/ActionVerifier/ActionVerifier.swift -o "$BUILD_DIR/ActionVerifier_arm64"
 
 echo "🛠️ [Build] 编译 ActionVerifier 校验程序 (x86_64)..."
-swiftc -Onone -parse-as-library -sdk $SDK_PATH -vfsoverlay "$BUILD_DIR/overlay.yaml" -target x86_64-apple-macosx13.0 Sources/ActionVerifier/ActionVerifier.swift -o "$BUILD_DIR/ActionVerifier_x86_64"
+swiftc -Onone -parse-as-library -sdk $SDK_PATH -vfsoverlay "$BUILD_DIR/overlay.yaml" \
+    -module-cache-path "$MODULE_CACHE_DIR" -Xcc -fmodules-cache-path="$MODULE_CACHE_DIR" \
+    -target x86_64-apple-macosx13.0 Sources/ActionVerifier/ActionVerifier.swift -o "$BUILD_DIR/ActionVerifier_x86_64"
 
 echo "🔗 [Build] 使用 lipo 创建 ActionVerifier 的 Universal 胖二进制文件..."
 lipo -create -output "ActionVerifier_bin" "$BUILD_DIR/ActionVerifier_arm64" "$BUILD_DIR/ActionVerifier_x86_64"

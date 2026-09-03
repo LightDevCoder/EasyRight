@@ -67,3 +67,33 @@ public extension View {
         self.background(AcrylicWindowBackground(cornerRadius: cornerRadius))
     }
 }
+
+// MARK: - Window Drag Area
+/// An NSViewRepresentable wrapper that initiates AppKit window dragging on mouse down.
+/// Used in custom titlebar / toolbar regions so the window can be moved by dragging its top toolbar,
+/// without setting `isMovableByWindowBackground = true` on the NSWindow (which causes AppKit to hijack
+/// list and canvas drag-and-drop gestures).
+public struct WindowDragArea: NSViewRepresentable {
+    public init() {}
+
+    public func makeNSView(context: Context) -> WindowDragView {
+        WindowDragView()
+    }
+
+    public func updateNSView(_ nsView: WindowDragView, context: Context) {}
+}
+
+public final class WindowDragView: NSView {
+    public override var mouseDownCanMoveWindow: Bool {
+        true
+    }
+
+    public override func mouseDown(with event: NSEvent) {
+        if event.clickCount == 2 {
+            window?.zoom(nil)
+        } else {
+            window?.performDrag(with: event)
+        }
+    }
+}
+
