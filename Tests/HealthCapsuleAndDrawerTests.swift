@@ -77,7 +77,7 @@ struct HealthCapsuleAndDrawerTests {
         _ = mainWindow.body
 
         // 6. Diagnostic summary report generation
-        let summary = healthySnapshot.diagnosticSummary(appVersion: "1.2.1")
+        let summary = healthySnapshot.diagnosticSummary(appVersion: "0.1.0")
         assert(summary.contains("EasyRight Diagnostics"), "Summary should contain header")
         assert(summary.contains("Full Disk Access: granted"), "Summary should report FDA")
         assert(summary.contains("Extension Registration: enabled"), "Summary should report Extension status")

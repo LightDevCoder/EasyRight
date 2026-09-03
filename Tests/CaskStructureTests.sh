@@ -3,8 +3,8 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CASK_FILE="$ROOT_DIR/Casks/easyright.rb"
-README_ZH="$ROOT_DIR/README.md"
-README_EN="$ROOT_DIR/README_EN.md"
+README_ZH="$ROOT_DIR/README_zh.md"
+README_EN="$ROOT_DIR/README.md"
 VALIDATOR_FILE="$ROOT_DIR/Scripts/validate_cask.sh"
 QUARANTINE_COMMAND='sudo /usr/bin/xattr -dr com.apple.quarantine "/Applications/EasyRight.app"'
 
@@ -16,8 +16,8 @@ fail() {
 [[ -f "$CASK_FILE" ]] || fail "缺少 Cask 文件: $CASK_FILE"
 
 grep -q 'cask "easyright"' "$CASK_FILE" || fail "Cask token 必须是 easyright"
-grep -q 'version "1.2.1"' "$CASK_FILE" || fail "Cask 必须使用明确版本"
-grep -q 'sha256 "9230f3db5684f537a00c15141e6dac746092ea4fef59e2ab37538d64dba46e37"' "$CASK_FILE" || fail "Cask 必须校验稳定制品"
+grep -q 'version "0.1.0"' "$CASK_FILE" || fail "Cask 必须使用明确版本"
+grep -q 'sha256 "c30c2de254023404c46369591a4cba7a67c6b0768f5127e74446a8bae51c1f1b"' "$CASK_FILE" || fail "Cask 必须校验稳定制品"
 grep -q 'download/v#{version}/EasyRight-v#{version}-macOS-Universal.dmg' "$CASK_FILE" || fail "Cask URL 必须不可变"
 grep -q 'livecheck do' "$CASK_FILE" || fail "Cask 必须提供版本检查策略"
 grep -q 'app "EasyRight.app"' "$CASK_FILE" || fail "Cask 必须安装 EasyRight.app"
@@ -45,16 +45,16 @@ if grep -Eq 'system_command "/usr/bin/pluginkit"|executable: "/usr/bin/pluginkit
   fail "Cask 卸载不应依赖可能使升级中断的 FinderSync 注销命令"
 fi
 
-grep -q 'brew tap easyright/easyright https://github.com/easyright/EasyRight.git' "$README_ZH" || fail "中文 README 缺少当前可用的 brew tap 命令"
-grep -q 'brew install --cask easyright/easyright/easyright' "$README_ZH" || fail "中文 README 缺少最小信任范围的 brew 安装命令"
-grep -q 'brew trust --cask easyright/easyright/easyright' "$README_ZH" || fail "中文 README 缺少 Homebrew 6 信任修复命令"
-grep -q 'brew upgrade --cask easyright/easyright/easyright' "$README_ZH" || fail "中文 README 缺少完整限定的升级命令"
+grep -q 'brew tap LightDevCoder/easyright https://github.com/LightDevCoder/EasyRight.git' "$README_ZH" || fail "中文 README 缺少当前可用的 brew tap 命令"
+grep -q 'brew install --cask LightDevCoder/easyright/easyright' "$README_ZH" || fail "中文 README 缺少最小信任范围的 brew 安装命令"
+grep -q 'brew trust --cask LightDevCoder/easyright/easyright' "$README_ZH" || fail "中文 README 缺少 Homebrew 6 信任修复命令"
+grep -q 'brew upgrade --cask LightDevCoder/easyright/easyright' "$README_ZH" || fail "中文 README 缺少完整限定的升级命令"
 grep -Fq "$QUARANTINE_COMMAND" "$README_ZH" || fail "中文 README 缺少可直接执行的 quarantine 移除命令"
 grep -Fq 'rm -rf "$(brew --caskroom)/easyright"' "$README_ZH" || fail "中文 README 缺少 v1.2.0 升级故障恢复命令"
-grep -q 'brew tap easyright/easyright https://github.com/easyright/EasyRight.git' "$README_EN" || fail "英文 README 缺少当前可用的 brew tap 命令"
-grep -q 'brew install --cask easyright/easyright/easyright' "$README_EN" || fail "英文 README 缺少最小信任范围的 brew 安装命令"
-grep -q 'brew trust --cask easyright/easyright/easyright' "$README_EN" || fail "英文 README 缺少 Homebrew 6 信任修复命令"
-grep -q 'brew upgrade --cask easyright/easyright/easyright' "$README_EN" || fail "英文 README 缺少完整限定的升级命令"
+grep -q 'brew tap LightDevCoder/easyright https://github.com/LightDevCoder/EasyRight.git' "$README_EN" || fail "英文 README 缺少当前可用的 brew tap 命令"
+grep -q 'brew install --cask LightDevCoder/easyright/easyright' "$README_EN" || fail "英文 README 缺少最小信任范围的 brew 安装命令"
+grep -q 'brew trust --cask LightDevCoder/easyright/easyright' "$README_EN" || fail "英文 README 缺少 Homebrew 6 信任修复命令"
+grep -q 'brew upgrade --cask LightDevCoder/easyright/easyright' "$README_EN" || fail "英文 README 缺少完整限定的升级命令"
 grep -Fq "$QUARANTINE_COMMAND" "$README_EN" || fail "英文 README 缺少可直接执行的 quarantine 移除命令"
 grep -Fq 'rm -rf "$(brew --caskroom)/easyright"' "$README_EN" || fail "英文 README 缺少 v1.2.0 升级故障恢复命令"
 

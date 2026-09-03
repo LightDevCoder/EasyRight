@@ -1,210 +1,210 @@
 # EasyRight
 
-[English](README_EN.md) | 简体中文
+**English** | [简体中文](README_zh.md) | [🚀 Releases](https://github.com/LightDevCoder/EasyRight/releases)
 
 <p align="center">
-  <img src="Resources/AppIcon.png" width="128" height="128" alt="EasyRight 图标" />
+  <img src="Resources/AppIcon.png" width="128" height="128" alt="EasyRight icon" />
 </p>
 
 <p align="center">
-  <a href="https://github.com/easyright/EasyRight/actions"><img src="https://github.com/easyright/EasyRight/workflows/EasyRight%20CI/CD%20Build/badge.svg" alt="CI 状态" /></a>
+  <a href="https://github.com/LightDevCoder/EasyRight/actions"><img src="https://github.com/LightDevCoder/EasyRight/workflows/EasyRight%20CI/CD%20Build/badge.svg" alt="CI status" /></a>
   <img src="https://img.shields.io/badge/macOS-13.0%2B-blue" alt="macOS 13.0+" />
   <img src="https://img.shields.io/badge/Swift-6.0-orange" alt="Swift 6.0" />
   <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License" />
 </p>
 
-EasyRight 是一款免费、开源的 macOS Finder 右键菜单助手。当前源码注册 **30 个动作**，默认把已启用且适用于当前选中项的动作直接显示在一级菜单中；也可切换为分类子菜单。
+EasyRight is a free, open-source Finder context-menu assistant for macOS. The current source registers **30 actions**. Enabled actions that apply to the current selection appear directly in the top-level menu by default; a categorized submenu layout remains available.
 
-项目由 FinderSync 扩展负责菜单与上下文采集，宿主 App 负责文件操作、交互与后台任务。它不包含广告、遥测或后台更新轮询。
+A FinderSync extension renders menus and captures context, while the host app performs file operations, interaction, and background work. The app contains no ads, telemetry, or background update polling.
 
-## 界面
+## Interface
 
-| Finder 一级菜单 | 动作与档案 |
+| Finder top-level menu | Actions and profiles |
 | :---: | :---: |
-| <img src="docs/screenshots/finder-context-menu.png" width="420" alt="Finder 一级右键菜单" /> | <img src="docs/screenshots/settings-actions.png" width="420" alt="动作搜索、档案和菜单布局" /> |
+| <img src="docs/screenshots/finder-context-menu.png" width="420" alt="Finder top-level context menu" /> | <img src="docs/screenshots/settings-actions.png" width="420" alt="Action search, profiles, and menu layout" /> |
 
-| Finder 与权限 | 健康诊断 |
+| Finder and permissions | Health diagnostics |
 | :---: | :---: |
-| <img src="docs/screenshots/settings-permissions.png" width="420" alt="Finder 扩展、作用范围和文件访问" /> | <img src="docs/screenshots/settings-diagnostics.png" width="420" alt="右键菜单健康诊断" /> |
+| <img src="docs/screenshots/settings-permissions.png" width="420" alt="Finder extension, scope, and file access" /> | <img src="docs/screenshots/settings-diagnostics.png" width="420" alt="Context-menu health diagnostics" /> |
 
-| 高级与外部工具 | 深色模式 |
+| Advanced and external tools | Dark mode |
 | :---: | :---: |
-| <img src="docs/screenshots/settings-advanced.png" width="420" alt="高级动作和 Homebrew 外部工具" /> | <img src="docs/screenshots/settings-dark.png" width="420" alt="深色模式设置窗口" /> |
+| <img src="docs/screenshots/settings-advanced.png" width="420" alt="Advanced actions and Homebrew tools" /> | <img src="docs/screenshots/settings-dark.png" width="420" alt="Settings in dark mode" /> |
 
-## 主要能力
+## Highlights
 
-- **30 个内置动作**：新建文件、剪切粘贴、路径复制、终端/编辑器、哈希、二维码和图片转换。
-- **自定义外部应用动作**：自由添加本地安装的任意 macOS 应用程序（如 Keka 压缩/解压、Typora、IINA、Sublime Merge 等），支持按全部、仅目录、仅文件或指定文件扩展名精确过滤触发，自动并入右键动作画布与拖拽排序。
-- **一级菜单默认开启**：收藏动作置顶但不额外拉开大段间距；可切换分类菜单。
-- **动作档案**：精简、专业、自定义三档；高级动作不会被档案批量开启。
-- **快速检索**：按标题、动作 ID、分类和状态筛选。
-- **全目录或自定义范围**：默认覆盖 Finder 常用目录、iCloud/CloudStorage、系统根目录和外接卷；可收窄到自定义目录。
-- **健康诊断**：分别展示菜单服务、完全磁盘访问和动作队列，并只推荐一个优先修复动作。
-- **可靠动作队列**：Pending -> InFlight -> 终态确认；宿主异常退出后可回收未完成租约。
-- **显式更新检查**：只有点击“检查更新”才访问 GitHub Release API。
-- **Homebrew 外部工具**：区分独立安装与 Homebrew 管理来源，再安装、更新或修复 iTerm2、Warp、VS Code、Sublime Text、Cursor。
-- **Universal 2**：同时支持 Apple Silicon 与 Intel Mac。
+- **30 built-in actions** for file creation, cut/paste, path copying, terminals/editors, hashes, QR codes, and image conversion.
+- **Custom application actions**: Add any installed macOS applications (such as Keka for archive compression/extraction, Typora, IINA, Sublime Merge, etc.) to the Finder context menu with precise filtering rules (all items, folders only, files only, or matching specific file extensions).
+- **Top-level menu by default** with favorites first and no oversized separator gap; categorized mode is optional.
+- **Action profiles**: Essential, Professional, and Custom. Profiles never batch-enable advanced actions.
+- **Fast filtering** by title, action ID, category, and status.
+- **Everywhere or custom scope** covering common Finder roots, iCloud/CloudStorage, and mounted volumes by default.
+- **Layered health diagnostics** for menu service, Full Disk Access, and the action queue, with one prioritized repair action.
+- **Reliable action queue** using Pending -> InFlight -> terminal acknowledgement and abandoned-lease recovery.
+- **Explicit update checks** that run only after the user clicks Check for Updates.
+- **Homebrew tool management** that distinguishes standalone apps from Homebrew-managed installs before installing, updating, or repairing iTerm2, Warp, VS Code, Sublime Text, and Cursor.
+- **Universal 2** support for Apple Silicon and Intel Macs.
 
-## 30 个动作
+## 30 Actions
 
-| 类别 | 数量 | 动作 |
+| Category | Count | Actions |
 | --- | ---: | --- |
-| 新建文件 | 9 | `.txt`、`.md`、`.json`、`.csv`、`.html`、`.docx`、`.xlsx`、`.pptx`、`.pdf` |
-| 文件管理 | 9 | 剪切、粘贴、彻底删除、拷贝完整路径、拷贝文件名、复制到、移动到、复制 Shell 安全路径、复制 Git 相对路径 |
-| 终端/编辑器 | 6 | Terminal、iTerm2、Warp、Visual Studio Code、Sublime Text、Cursor |
-| 实用工具 | 6 | MD5、SHA-256、切换隐藏文件、剪贴板文本转二维码、转 PNG、转 JPEG |
+| New files | 9 | `.txt`, `.md`, `.json`, `.csv`, `.html`, `.docx`, `.xlsx`, `.pptx`, `.pdf` |
+| File management | 9 | Cut, Paste, Permanent Delete, Copy Full Path, Copy Name, Copy To, Move To, Copy Shell-Safe Path, Copy Git-Relative Path |
+| Terminals/editors | 6 | Terminal, iTerm2, Warp, Visual Studio Code, Sublime Text, Cursor |
+| Utilities | 6 | MD5, SHA-256, Toggle Hidden Files, Clipboard Text to QR Code, Convert to PNG, Convert to JPEG |
 
 > [!NOTE]
-> 低频专业动作默认关闭；彻底删除、复制到、移动到、切换隐藏文件属于高级动作，默认关闭并在执行前确认。依赖第三方 App 的动作只会在对应 App 已安装时出现在菜单中。用户可以在“自定义应用”面板中自由添加任意本地软件（例如选择 `Keka.app` 并绑定 `.zip,.7z,.rar` 等扩展名用于解压缩，或绑定文件/文件夹用于压缩）。
+> Low-frequency professional actions are off by default. Permanent Delete, Copy To, Move To, and Toggle Hidden Files are advanced actions: they are off by default and require confirmation. Actions that depend on third-party apps are shown only when the corresponding app is installed. Users can freely add any local application via the "Custom Apps" settings panel (e.g. binding `Keka.app` with `.zip,.7z,.rar` extensions for extraction or folders for compression).
 
-## 架构
+## Architecture
 
 ```mermaid
 flowchart LR
-    F[Finder / FinderSync] -->|schema v2 事件| P[PendingActions]
-    F -->|File Provider 降级| S[macOS 系统服务]
-    S -->|schema v2 事件| P
-    P -->|原子租约| I[InFlightActions]
+    F[Finder / FinderSync] -->|schema v2 event| P[PendingActions]
+    F -->|File Provider fallback| S[macOS Services]
+    S -->|schema v2 event| P
+    P -->|atomic lease| I[InFlightActions]
     I --> H[Host ActionDispatcher]
-    H --> R[交互或后台 Runner]
-    R -->|成功 / 失败 / 取消| A[确认并删除租约]
-    I -->|进程异常退出| P
-    H --> D[FailedActions / OSLog 诊断]
+    H --> R[Interactive or background Runner]
+    R -->|success / failure / cancellation| A[Acknowledge lease]
+    I -->|host exits unexpectedly| P
+    H --> D[FailedActions / OSLog diagnostics]
 ```
 
-- `DefaultActionRegistry` 是 Host、FinderSync、设置页和测试的动作真相源。
-- Finder 菜单渲染路径不执行网络请求、外部命令或大文件处理。
-- 官网分发路线通过扩展容器目录交换配置和事件；FinderSync 保持沙盒化。
-- 配置批量变更采用单次原子提交，FinderSync 通过通知刷新进程内缓存。
+- `DefaultActionRegistry` is the action source of truth for the host, FinderSync, settings, and tests.
+- Finder menu rendering performs no network request, external process, or large-file work.
+- The website distribution route exchanges configuration and events through the extension container while FinderSync remains sandboxed.
+- Batch configuration changes use one atomic commit; FinderSync refreshes its in-process cache after notification.
 
-### 权限边界
+### Permission Boundaries
 
-**完全磁盘访问不决定右键菜单是否出现。**
+**Full Disk Access does not determine whether the context menu appears.**
 
-- Finder 扩展注册、启用状态和监听范围决定菜单能否出现。
-- 完全磁盘访问只影响部分受保护目录中的文件读写。
-- 刚授权后，旧进程可能仍持有授权前状态。App 会在重新检测时提供“重新打开并重启 Finder”的修复入口。
+- Finder extension registration, enablement, and watch scope determine menu visibility.
+- Full Disk Access affects file operations in some protected locations.
+- After granting access, an existing process may retain its previous state. The app offers Relaunch App and Restart Finder when a refresh still reports the old state.
 
-## 安装
+## Installation
 
 > [!IMPORTANT]
-> **当前发布的是免费开源社区构建。** 安装包使用 Ad-hoc 签名，未使用付费 Apple Developer Program 提供的 Developer ID，也未经 Apple 公证。macOS 因此可能显示“无法验证开发者”或阻止首次打开。这个提示不等于文件已被判定为恶意软件，但也表示用户无法依赖 Apple 的开发者身份和公证结果。Homebrew 安装不会改变这一状态。请只从本仓库 Releases 下载，并按下方“首次运行”步骤手动确认。
+> **Current downloads are free, open-source community builds.** They use an Ad-hoc signature, not a Developer ID from the paid Apple Developer Program, and they are not notarized by Apple. macOS may therefore report that it cannot verify the developer or block the first launch. This warning does not mean the file has been identified as malware, but it also means users cannot rely on an Apple-verified developer identity or notarization result. Installing through Homebrew does not change this status. Download only from this repository's Releases page and explicitly approve the app using the First Run steps below.
 
 ### GitHub Release
 
-当前代码、GitHub Release 和 Homebrew Cask 版本均为 **v1.2.1 社区构建**：
+The code, GitHub Release, and Homebrew Cask are all at the **v0.1.0 community build**:
 
-| 格式 | 当前可下载制品 |
+| Format | Current downloadable artifact |
 | --- | --- |
-| DMG | [EasyRight-v1.2.1-macOS-Universal.dmg](https://github.com/easyright/EasyRight/releases/download/v1.2.1/EasyRight-v1.2.1-macOS-Universal.dmg) |
-| ZIP | [EasyRight-v1.2.1-macOS-Universal.zip](https://github.com/easyright/EasyRight/releases/download/v1.2.1/EasyRight-v1.2.1-macOS-Universal.zip) |
+| DMG | [EasyRight-v0.1.0-macOS-Universal.dmg](https://github.com/LightDevCoder/EasyRight/releases/download/v0.1.0/EasyRight-v0.1.0-macOS-Universal.dmg) |
+| ZIP | [EasyRight-v0.1.0-macOS-Universal.zip](https://github.com/LightDevCoder/EasyRight/releases/download/v0.1.0/EasyRight-v0.1.0-macOS-Universal.zip) |
 
-全部版本见 [GitHub Releases](https://github.com/easyright/EasyRight/releases)。
+See [GitHub Releases](https://github.com/LightDevCoder/EasyRight/releases) for all versions.
 
-### 更新与 Latest
+### Updates And Latest
 
-每个稳定标签会同时生成两类资产：
+Every stable tag produces two asset classes:
 
-- `EasyRight-vX.Y.Z-macOS-Universal.*`：不可变的版本资产，用于 Homebrew、回滚和 SHA-256 校验。
-- `EasyRight-Latest.*`：始终位于最新稳定 Release 的便利别名，用于手动下载或简单脚本。
+- `EasyRight-vX.Y.Z-macOS-Universal.*`: immutable versioned assets for Homebrew, rollback, and SHA-256 verification.
+- `EasyRight-Latest.*`: convenience aliases attached to the newest stable Release for manual downloads and simple scripts.
 
-Latest 固定入口：
+Stable Latest entry points:
 
 ```text
-https://github.com/easyright/EasyRight/releases/latest
-https://github.com/easyright/EasyRight/releases/latest/download/EasyRight-Latest.dmg
-https://github.com/easyright/EasyRight/releases/latest/download/EasyRight-Latest.zip
+https://github.com/LightDevCoder/EasyRight/releases/latest
+https://github.com/LightDevCoder/EasyRight/releases/latest/download/EasyRight-Latest.dmg
+https://github.com/LightDevCoder/EasyRight/releases/latest/download/EasyRight-Latest.zip
 ```
 
 > [!NOTE]
-> Latest 路径会随新版发布而变化，不适合用作可复现安装源。Homebrew 不使用 Latest 资产，而是通过 `livecheck` 发现版本，然后使用版本化 URL 和真实 SHA-256。
+> Latest paths change when a new version is published and are unsuitable as reproducible installation sources. Homebrew does not use Latest assets. It discovers versions through `livecheck`, then uses a versioned URL and real SHA-256.
 
 ### Homebrew Cask
 
 ```bash
-brew tap easyright/easyright https://github.com/easyright/EasyRight.git
-brew install --cask easyright/easyright/easyright
+brew tap LightDevCoder/easyright https://github.com/LightDevCoder/EasyRight.git
+brew install --cask LightDevCoder/easyright/easyright
 ```
 
-当前 Cask 固定到 v1.2.1 的不可变 URL，并校验真实 SHA-256。`brew upgrade` 只会在仓库中的 Cask 版本和哈希更新后升级，不会绕过版本元数据追随可变 Latest 文件。
+The current Cask is pinned to an immutable v0.1.0 URL with a real SHA-256. `brew upgrade` advances only after this repository updates the Cask version and checksum; it does not bypass version metadata by following a mutable Latest file.
 
-Homebrew 6.0 起，第三方 tap 必须经过显式信任。上面的完整限定名称只信任 `easyright` 这一项，不会扩大到整个 tap，也是新旧 Homebrew 均可使用的推荐安装方式。如果此前使用短名称安装并看到 `untrusted tap`，执行：
+Starting with Homebrew 6.0, third-party taps require explicit trust. The fully qualified name above trusts only the `easyright` Cask, not the entire tap, and is the recommended command across old and new Homebrew versions. If a previous short-name install reported an `untrusted tap`, run:
 
 ```bash
-brew trust --cask easyright/easyright/easyright
-brew install --cask easyright/easyright/easyright
+brew trust --cask LightDevCoder/easyright/easyright
+brew install --cask LightDevCoder/easyright/easyright
 ```
 
-`brew trust --cask` 仅适用于 Homebrew 6.0 及以上；无需使用权限范围更大的 `brew trust easyright/easyright`。
+`brew trust --cask` is available only in Homebrew 6.0 and later. There is no need to grant the broader `brew trust LightDevCoder/easyright` permission.
 
 > [!NOTE]
-> Homebrew 会校验下载包的 SHA-256 并安装 App，但不会为 App 补做 Developer ID 签名或 Apple 公证。首次打开时仍可能需要在“隐私与安全性”中手动允许。不建议使用 `--no-quarantine` 绕过这一次用户确认。
+> Homebrew verifies the download SHA-256 and installs the app, but it cannot add a Developer ID signature or Apple notarization. The first launch may still require manual approval in Privacy & Security. Using `--no-quarantine` to bypass that user confirmation is not recommended.
 
 > [!IMPORTANT]
-> 当前 v1.2.1 是 Ad-hoc 签名、未经 Apple 公证的社区构建。新机器通过 Homebrew 安装后，macOS 仍可能阻止首次启动。先尝试 Control 点击 App ->“打开”，或“系统设置 -> 隐私与安全性 -> 仍要打开”。如果确认 App 来自本仓库但系统仍然拦截，执行：
+> The current v0.1.0 community build is Ad-hoc signed and not notarized by Apple. After a Homebrew install on a new Mac, macOS may still block the first launch. First try Control-clicking the app and choosing Open, or use System Settings -> Privacy & Security -> Open Anyway. If the app is confirmed to come from this repository and macOS still blocks it, run:
 
 ```bash
 sudo /usr/bin/xattr -dr com.apple.quarantine "/Applications/EasyRight.app"
 open "/Applications/EasyRight.app"
 ```
 
-`sudo` 会要求输入当前 macOS 管理员密码；终端输入密码时不会显示字符，这是正常现象。该命令只移除这个 App 的下载隔离属性，不会关闭 Gatekeeper，也不会为 App 增加签名或公证。
+`sudo` prompts for the current macOS administrator password. Terminal does not display password characters while you type; this is expected. The command removes the download quarantine attribute from this app only. It does not disable Gatekeeper or add signing or notarization.
 
 ```bash
 brew update
-brew upgrade --cask easyright/easyright/easyright
+brew upgrade --cask LightDevCoder/easyright/easyright
 ```
 
 > [!NOTE]
-> 从 v1.2.0 升级时，如果 `brew upgrade` 报出 `pluginkit -r com.easyright.app.extension`，这是旧版 Cask 已保存的卸载脚本错误，不是 v1.2.1 制品校验失败。仅需执行一次以下迁移；第一条命令只清除EasyRight的旧 Homebrew 收据，第二条会用已校验的 v1.2.1 DMG 覆盖安装：
+> If an upgrade from v1.2.0 reports `pluginkit -r com.easyright.app.extension`, the failure comes from the uninstall script stored by the old Cask, not from v0.1.0 verification. Run this one-time migration: the first command removes only EasyRight's stale Homebrew receipt, and the second overwrites the app with the verified v0.1.0 DMG.
 >
 > ```bash
 > rm -rf "$(brew --caskroom)/easyright"
-> brew install --cask --force easyright/easyright/easyright
+> brew install --cask --force LightDevCoder/easyright/easyright
 > ```
 
-普通卸载会保留设置和运行数据，但会移除动态快捷服务并刷新系统菜单：
+A normal uninstall keeps settings and runtime data, while removing dynamic quick services and refreshing the system menu:
 
 ```bash
-brew uninstall --cask easyright/easyright/easyright
-brew untap easyright/easyright
+brew uninstall --cask LightDevCoder/easyright/easyright
+brew untap LightDevCoder/easyright
 ```
 
-需要同时删除设置、共享容器和失败动作数据时，使用完全卸载：
+To also remove settings, shared containers, and failed-action data, perform a full uninstall:
 
 ```bash
 brew uninstall --cask --zap easyright
-brew untap easyright/easyright
+brew untap LightDevCoder/easyright
 ```
 
 > [!WARNING]
-> `--zap` 会删除用户配置和动作队列数据，不可恢复。
+> `--zap` permanently removes user configuration and action-queue data.
 
-已克隆仓库时，也可以把当前目录作为本地 tap：
-
-```bash
-brew tap easyright/easyright "$(pwd)"
-brew install --cask easyright/easyright/easyright
-```
-
-## 首次运行
-
-1. DMG 用户先将 `EasyRight.app` 拖入 `/Applications`；ZIP 用户解压后手动移入该目录。Homebrew 会自动完成这一步。
-2. 在 Finder 中按住 Control 点击 App，选择“打开”并再次确认。若仍被阻止，转到“系统设置 -> 隐私与安全性”，在页面底部点击“仍要打开”。
-3. 只在确认制品来自本仓库且系统界面无法放行时，使用 FAQ 中的精确 `xattr` 命令；不要全局关闭 Gatekeeper。
-4. 打开 App，在“Finder”页注册并启用扩展；必要时打开系统扩展设置。
-5. 保持“作用范围”为“所有目录”，或选择“仅自定义目录”并添加目录。
-6. 需要访问受保护目录时，再授予完全磁盘访问。
-7. 在“动作”页选择档案、收藏和菜单布局。
-
-直接下载 v1.2.1 DMG 时，可与 Cask 中公开的 SHA-256 比对：
+For a local checkout, the current directory can be used as a local tap:
 
 ```bash
-shasum -a 256 EasyRight-v1.2.1-macOS-Universal.dmg
-# 期望: 9230f3db5684f537a00c15141e6dac746092ea4fef59e2ab37538d64dba46e37
+brew tap LightDevCoder/easyright "$(pwd)"
+brew install --cask LightDevCoder/easyright/easyright
 ```
 
-手动注册扩展：
+## First Run
+
+1. For a DMG, drag `EasyRight.app` into `/Applications`. For a ZIP, extract it and move it there manually. Homebrew performs this step automatically.
+2. Control-click the app in Finder, choose Open, and confirm again. If macOS still blocks it, open System Settings -> Privacy & Security and choose Open Anyway near the bottom of the page.
+3. Use the precise `xattr` command in the FAQ only when the artifact is confirmed to come from this repository and the system UI cannot approve it. Never disable Gatekeeper globally.
+4. Open the app, then register and enable the extension on the Finder page; open System Settings if needed.
+5. Keep Watch Scope set to Everywhere, or choose Custom Directories and add folders.
+6. Grant Full Disk Access only when protected-location operations require it.
+7. Choose an action profile, favorites, and menu layout on the Actions page.
+
+For a direct v0.1.0 DMG download, compare its SHA-256 with the value published in the Cask:
+
+```bash
+shasum -a 256 EasyRight-v0.1.0-macOS-Universal.dmg
+# Expected: 9230f3db5684f537a00c15141e6dac746092ea4fef59e2ab37538d64dba46e37
+```
+
+Manual extension registration:
 
 ```bash
 pluginkit -a /Applications/EasyRight.app/Contents/PlugIns/EasyRightExtension.appex
@@ -212,7 +212,7 @@ pluginkit -e use -i com.easyright.app.extension
 killall Finder
 ```
 
-本地构建目录：
+For a local build:
 
 ```bash
 pluginkit -a "$(pwd)/build/EasyRight.app/Contents/PlugIns/EasyRightExtension.appex"
@@ -220,22 +220,22 @@ pluginkit -e use -i com.easyright.app.extension
 killall Finder
 ```
 
-## 构建与验证
+## Build And Verification
 
-当前社区构建和本地开发构建都使用 Ad-hoc 签名：
+Current community artifacts and local development builds both use an Ad-hoc signature:
 
 ```bash
 ./Scripts/build.sh
 ```
 
-产物：
+Artifacts:
 
 - `build/EasyRight.app`
 - `build/EasyRight.zip`
 - `build/EasyRight.dmg`
 - `ActionVerifier_bin`
 
-基础验证：
+Core checks:
 
 ```bash
 swift test
@@ -246,15 +246,15 @@ codesign --verify --deep --strict --verbose=2 build/EasyRight.app
 hdiutil verify build/EasyRight.dmg
 ```
 
-`ActionVerifier_bin` 验证 10 项关键链路，并不代表逐一验证全部 30 个动作。运行前请在“动作”页应用“专业”档案：
+`ActionVerifier_bin` covers 10 key workflows; it does not claim to execute all 30 actions. Apply the Professional profile on the Actions page first:
 
 ```bash
 ./ActionVerifier_bin
 ```
 
-当前推送 `vX.Y.Z` 标签后，CI 会自动构建并发布 Ad-hoc 社区制品，生成版本化 DMG/ZIP、Latest DMG/ZIP、`SHA256SUMS` 和 `COMMUNITY_BUILD.txt`。Release 说明和 Cask 都会显式披露未公证状态，已存在的版本制品不允许原地覆盖。
+Pushing a `vX.Y.Z` tag currently makes CI build and publish an Ad-hoc community release automatically. It creates versioned DMG/ZIP files, Latest DMG/ZIP aliases, `SHA256SUMS`, and `COMMUNITY_BUILD.txt`. Both the Release notes and Cask disclose the non-notarized status, and existing version assets cannot be replaced in place.
 
-仓库同时保留了未来的 Developer ID 正式分发路线，但当前没有付费 Apple Developer Program 凭据。只有配置证书和公证凭据后才能手动使用：
+The repository also retains a future Developer ID distribution path, but the project currently has no paid Apple Developer Program credentials. It can be used manually only after signing and notarization credentials are configured:
 
 ```bash
 DISTRIBUTION_ROUTE=website-release \
@@ -263,94 +263,94 @@ NOTARY_PROFILE="your-notarytool-profile" \
 ./Scripts/build.sh
 ```
 
-付费凭据缺失不会阻止明确标记的社区发布，但社区制品不得使用“Apple 已验证”“已公证”或 Developer ID 正式发布等表述。
+Missing paid credentials do not block an explicitly labeled community release, but community artifacts must never be described as Apple verified, notarized, or formally distributed with a Developer ID.
 
-## 外部工具
+## External Tools
 
-“高级 -> 外部工具”会检测：
+Advanced -> External Tools checks these Homebrew locations:
 
 ```text
 /opt/homebrew/bin/brew
 /usr/local/bin/brew
 ```
 
-页面会在后台读取一次 `brew list --cask --versions`，同时检查 App 是否存在：
+The page reads `brew list --cask --versions` in the background and checks whether each app exists:
 
-- 未安装：提供 `brew install --cask`。
-- 由 Homebrew 管理：提供 `brew upgrade --cask --greedy`，包括声明 `auto_updates` 的 Cask。
-- App 已存在但不是由 Homebrew 管理：标记为“独立安装”，只提供打开入口，应使用应用自身的更新机制。
-- Homebrew 有安装记录但 App 缺失：提供 `brew reinstall --cask` 修复。
+- Not installed: offers `brew install --cask`.
+- Managed by Homebrew: offers `brew upgrade --cask --greedy`, including Casks marked `auto_updates`.
+- App present but not managed by Homebrew: labels it as a standalone install and only offers Open; use the app's own updater.
+- Homebrew record present but app missing: offers `brew reinstall --cask` to repair it.
 
-只有用户点击安装、更新或修复后，App 才会在后台运行对应命令；执行前还会重新核对安装状态。未检测到 Homebrew 时，只提供官网入口和官方安装命令复制，不会自动执行远程脚本，也不会强制接管手动安装的 App。
+The app runs an install, update, or repair command only after an explicit click and revalidates the installation state before execution. If Homebrew is unavailable, it only offers the official website and a copyable official install command. It never runs a remote script automatically or forcibly takes over a manually installed app.
 
-## 隐私与日志
+## Privacy And Logs
 
-- 无广告、无遥测、无后台更新轮询。
-- 更新检查只向 GitHub Latest Release API 发送用户主动发起的请求。
-- 详细调试日志默认关闭；开启后可能包含菜单渲染和路径监听信息。
-- 日志统一写入 OSLog，不再持续追加 `extension.log`。
+- No ads, telemetry, or background update polling.
+- Update checking sends a request to the GitHub Latest Release API only after explicit user action.
+- Verbose debug logging is off by default and may include menu-rendering or watched-path details when enabled.
+- Logs use OSLog; the app no longer continuously appends `extension.log`.
 
 ```bash
 log show --predicate 'subsystem == "com.easyright.app"' --last 5m --info
 ```
 
-也可以在 `Console.app` 中使用：
+The same predicate can be used in `Console.app`:
 
 ```text
 subsystem == "com.easyright.app"
 ```
 
-## 常见问题
+## FAQ
 
-### 已授予完全磁盘访问，为什么仍显示未授权？
+### Full Disk Access is granted, but the app still reports it as unavailable
 
-先回到“Finder”页点击重新检测。若仍未刷新，使用页面提供的“重新打开并重启 Finder”；TCC 授权状态可能需要相关进程重新启动后才会更新。
+Return to the Finder page and click Recheck. If the state remains stale, use Relaunch App and Restart Finder. TCC state can require the relevant processes to restart before they observe a newly granted permission.
 
-### 为什么其他路径没有右键菜单？
+### The context menu is missing in other folders
 
-在“Finder”页确认：扩展已启用、作用范围为“所有目录”、诊断页收到最近心跳且监听入口大于 0。菜单是否出现与完全磁盘访问是两个独立状态。
+On the Finder page, verify that the extension is enabled and Watch Scope is Everywhere. The Diagnostics page should show a recent heartbeat with at least one observed entry. Menu visibility and Full Disk Access are separate states.
 
-如果“桌面”或“文稿”已由 iCloud Drive / File Provider 托管，macOS 可能不向第三方 FinderSync 扩展提供一级动作，同目录中其他 FinderSync 工具也会一起缺失。EasyRight会在“服务”子菜单提供两层降级入口：
+If Desktop or Documents is managed by iCloud Drive / File Provider, macOS may suppress third-party FinderSync actions in that domain; other FinderSync tools disappear from the same menu as well. EasyRight therefore provides two fallback levels under Services:
 
 ```text
-右键文件/文件夹 -> 服务 -> EasyRight · 1 ★ 剪切（收藏直达动作示例）
-右键文件/文件夹 -> 服务 -> EasyRight…（完整动作面板）
+Control-click a file/folder -> Services -> EasyRight · 1 ★ 剪切 (favorite direct action example)
+Control-click a file/folder -> Services -> EasyRight… (full action palette)
 ```
 
-直达区将已启用的收藏按收藏顺序放在前面，再用“剪切、拷贝完整路径、拷贝文件名、在系统终端中打开、获取 SHA256”等常用动作补齐；自动去重且最多显示 8 项。数字用于稳定 macOS 的实际展示顺序，`★` 表示收藏。高风险动作不会进入直达区，依赖未安装外部应用的动作也不会生成。修改收藏、动作开关或外部应用可用状态后，EasyRight会按需刷新系统服务，不会后台轮询。
+Direct services keep enabled favorites in the user's saved order, then fill from common actions such as Cut, Copy Full Path, Copy File Name, Open in Terminal, and SHA256. Entries are deduplicated and capped at eight. Numeric prefixes stabilize the order shown by macOS, and `★` marks favorites. High-risk actions and actions whose external app is unavailable are never advertised directly. Changes to favorites, action switches, or external app availability refresh Services on demand without background polling.
 
-“EasyRight…”面板复用同一注册表、设置开关和事务队列，提供“全部、常用、新建、文件、终端、工具”分类和搜索；“全部”页依次展示收藏、常用推荐和其余分类，同一动作不会重复出现。面板只展示适用于当前选中项的动作，点击时还会再次校验。普通本地目录仍优先使用 FinderSync 一级菜单。
+The “EasyRight…” palette reuses the same action registry, settings, and transactional queue. It provides All, Common, New, Files, Terminal, and Tools views plus search. All keeps favorites first, recommendations second, and remaining categories deduplicated. Only actions that apply to the current selection are shown, and every choice is validated again before it is queued. FinderSync remains the preferred first-level menu in regular local folders.
 
-系统服务不申请“辅助功能”或“自动化”权限，也不使用私有 API。动态快捷项写入当前用户的 `~/Library/Services/EasyRightQuickActions.service`，内容变化时通过 Apple 的 `NSUpdateDynamicServices()` 刷新；普通卸载和完全卸载都会清理该目录。若希望用键盘打开，可在“系统设置 -> 键盘 -> 键盘快捷键 -> 服务”中为“EasyRight…”自行设置快捷键，避免软件预设快捷键与现有习惯冲突。
+This fallback does not request Accessibility or Automation access and does not use private APIs. Dynamic entries are stored at `~/Library/Services/EasyRightQuickActions.service` and refreshed with Apple's `NSUpdateDynamicServices()` only when their content changes; normal and zap uninstall paths remove the generated bundle. To assign a keyboard shortcut, use System Settings -> Keyboard -> Keyboard Shortcuts -> Services and configure “EasyRight…” there; the app intentionally avoids a global default that could conflict with existing shortcuts.
 
-### 如何清理失败动作？
+### How do I clear failed actions?
 
-“诊断”页会显示待处理、最久等待和失败计数。确认不再需要失败事件后，点击“清空失败动作”。
+Diagnostics shows pending, oldest-wait, and failed counts. After confirming that failed events are no longer needed, click Clear Failed Actions.
 
-### 社区发布包或本地 Ad-hoc 构建被 Gatekeeper 拦截怎么办？
+### Gatekeeper blocks a community release or local Ad-hoc build
 
-当前 GitHub Release 与 Cask 制品未经 Apple 公证。先尝试 Control 点击 App -> “打开”，或使用“系统设置 -> 隐私与安全性 -> 仍要打开”。只有在确认 App 来自本仓库后，才对这一个 App 移除 quarantine 属性：
+Current GitHub Release and Cask artifacts are not notarized by Apple. First try Control-click -> Open, or System Settings -> Privacy & Security -> Open Anyway. Only after confirming that the app came from this repository, remove the quarantine attribute from this app alone:
 
 ```bash
 sudo /usr/bin/xattr -dr com.apple.quarantine "/Applications/EasyRight.app"
 open "/Applications/EasyRight.app"
 ```
 
-`sudo` 会要求输入当前 macOS 管理员密码，输入时终端不会显示字符。命令成功后通常没有输出；随后使用第二条命令启动 App。
+`sudo` prompts for the current macOS administrator password, and Terminal does not display password characters while you type. A successful command normally prints no output; use the second command to launch the app.
 
 > [!WARNING]
-> 不要执行 `sudo spctl --master-disable`，不要对 `/Applications` 整个目录运行 `xattr`，也不要对来源不明的 App 使用上述命令。该命令只移除指定 App 的下载隔离标记，不会为它增加签名或公证。
+> Do not run `sudo spctl --master-disable`, do not run `xattr` against the entire `/Applications` directory, and do not bypass quarantine for an app from an unknown source. This command removes only the download quarantine marker from the specified app; it does not sign or notarize it.
 
-## 文档
+## Documentation
 
-- [变更日志](CHANGELOG.md)
-- [Mac App Store 架构迁移](docs/distribution/mac-app-store-architecture.md)
-- [v1.2 设计](docs/superpowers/specs/2026-07-10-v1.2-native-experience-reliability-design.md)
-- [v1.2 实施计划](docs/superpowers/plans/2026-07-10-v1.2-native-experience-reliability.md)
+- [Changelog](CHANGELOG.md)
+- [Mac App Store architecture migration](docs/distribution/mac-app-store-architecture.md)
+- [v1.2 design](docs/superpowers/specs/2026-07-10-v1.2-native-experience-reliability-design.md)
+- [v1.2 implementation plan](docs/superpowers/plans/2026-07-10-v1.2-native-experience-reliability.md)
 
-## 致谢
+## Acknowledgements
 
-EasyRight 基于开源项目 [MacRightClick](https://github.com/guyue55/MacRightClick) 重构与演进而成。衷心感谢原作者 [@guyue55](https://github.com/guyue55) 及所有贡献者为社区打造的优秀灵感与坚实基础。
+EasyRight is refactored and evolved from the open-source project [MacRightClick](https://github.com/guyue55/MacRightClick). Sincere thanks to the original author [@guyue55](https://github.com/guyue55) and all contributors for their inspiring work and solid foundation.
 
 ## License
 

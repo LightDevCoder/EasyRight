@@ -1036,6 +1036,11 @@ public final class SharedStorageManager: @unchecked Sendable {
         let success = mutateConfig(
             update: { config, _ in
                 config[Keys.canvasItems] = jsonArray
+                for item in items {
+                    if let actionId = item.actionId {
+                        config["enable_action_\(actionId)"] = true
+                    }
+                }
             },
             mirrorToSharedDefaults: { defaults, _ in
                 defaults.set(jsonArray, forKey: Keys.canvasItems)

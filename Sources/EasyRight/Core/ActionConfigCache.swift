@@ -63,7 +63,9 @@ public final class ActionConfigCache: @unchecked Sendable {
         if let cached = queue.sync(execute: { enableMap[actionId] }) {
             return cached
         }
-        let v = storage.getBool(forKey: "enable_action_\(actionId)", defaultValue: defaultValue)
+        let inCanvas = queue.sync { cachedCanvasItems }?.contains(where: { $0.actionId == actionId }) ?? false
+        let effectiveDefault = inCanvas ? true : defaultValue
+        let v = storage.getBool(forKey: "enable_action_\(actionId)", defaultValue: effectiveDefault)
         // 必须 sync barrier：menu(for:) 主路径会在毫秒级内对同一 actionId 连续读多次，
         // 异步 barrier 会让"第二次读"在 barrier 落库前看不到首次回源结果，从而再次穿透到底层 IO。
         queue.sync(flags: .barrier) { self.enableMap[actionId] = v }

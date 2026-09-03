@@ -78,7 +78,7 @@ public enum FinderMenuLayoutBuilder {
 
         func isEligible(_ actionId: String) -> Bool {
             guard let action = actionMap[actionId] else { return false }
-            return isEnabled(action) && isAvailable(action)
+            return isAvailable(action)
         }
 
         var sections: [FinderMenuLayoutSection] = []

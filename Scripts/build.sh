@@ -8,13 +8,25 @@ set -euo pipefail
 echo "🚀 [Build] 开始自动化编译与打包流程..."
 
 # 1. 初始化目录
-BUILD_DIR="build"
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$PROJECT_DIR"
+BUILD_DIR="$PROJECT_DIR/build"
 APP_NAME="EasyRight"
 APP_BUNDLE="$BUILD_DIR/$APP_NAME.app"
 EXT_BUNDLE="$APP_BUNDLE/Contents/PlugIns/${APP_NAME}Extension.appex"
+DMG_TEMP_DIR="$BUILD_DIR/dmg_temp"
 DISTRIBUTION_ROUTE="${DISTRIBUTION_ROUTE:-website-dev}"
 CODE_SIGN_IDENTITY="-"
 CODESIGN_RUNTIME_ARGS=""
+
+# 确保在脚本退出（成功、失败、被中断）时，清理临时磁盘映像挂载与临时目录
+cleanup_temp_artifacts() {
+    if [ -d "${DMG_TEMP_DIR:-}" ]; then
+        rm -rf "$DMG_TEMP_DIR" 2>/dev/null || true
+    fi
+    hdiutil detach "/Volumes/EasyRight" >/dev/null 2>&1 || true
+}
+trap cleanup_temp_artifacts EXIT INT TERM
 
 if [ "$DISTRIBUTION_ROUTE" = "website-release" ]; then
     if [ -z "${DEVELOPER_ID_APPLICATION:-}" ]; then
@@ -66,6 +78,7 @@ echo "🚢 [Build] 当前分发路线: $DISTRIBUTION_ROUTE"
 echo "🧹 [Build] 清理旧编译目录: $BUILD_DIR..."
 rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
+touch "$BUILD_DIR/.metadata_never_index"
 
 echo "📝 [Build] 动态创建 VFS Overlay 解决系统底层 SwiftBridging 重定义冲突..."
 cat << 'EOF' > "$BUILD_DIR/empty.modulemap"
@@ -83,7 +96,7 @@ cat << EOF > "$BUILD_DIR/overlay.yaml"
         {
           'type': 'file',
           'name': 'bridging.modulemap',
-          'external-contents': '$(pwd)/$BUILD_DIR/empty.modulemap'
+          'external-contents': '$BUILD_DIR/empty.modulemap'
         }
       ]
     }
@@ -454,14 +467,13 @@ fi
 
 # 10. 打包压缩为 Distribution 压缩包与 DMG 磁盘映像
 echo "📦 [Build] 正在打包压缩为 distributable .zip 绿色免安装版..."
-cd "$BUILD_DIR"
-zip -r -q "EasyRight.zip" "$APP_NAME.app"
-cd ..
+(cd "$BUILD_DIR" && zip -r -q "EasyRight.zip" "$APP_NAME.app")
 
 echo "📦 [Build] 开始构建 Drag-to-Install DMG 磁盘映像..."
 DMG_TEMP_DIR="$BUILD_DIR/dmg_temp"
 rm -rf "$DMG_TEMP_DIR"
 mkdir -p "$DMG_TEMP_DIR"
+touch "$DMG_TEMP_DIR/.metadata_never_index"
 
 # A. 拷贝 App 以及 Applications 快捷方式
 cp -R "$APP_BUNDLE" "$DMG_TEMP_DIR/"
@@ -486,44 +498,39 @@ fi
 
 # C. 静默挂载原始 DMG 以便调用 AppleScript 写入 Finder 窗口对称排版元数据
 echo "🎨 [Build] 静默挂载临时磁盘映像并启动 Finder 视觉排版排布..."
-# 使用 -nobrowse 避免在用户桌面弹出影响体验
-device=$(hdiutil attach -nobrowse -readwrite "$RAW_DMG" | egrep '/Volumes/' | awk '{print $1}')
-sleep 1.5
-
-# 使用 AppleScript 让 Finder 调整该虚拟盘的布局元数据。添加 Headless 降级保护
-osascript <<EOF || echo "⚠️ [Build] 提示: 当前处于 headless 无显示环境，已安全跳过 Finder UI 窗口排版，默认继承系统基础布局。"
-tell application "Finder"
-    tell disk "EasyRight"
-        open
-        delay 1
-        set containerWindow to container window of disk "EasyRight"
-        set current view of containerWindow to icon view
-        set toolbar visible of containerWindow to false
-        set statusbar visible of containerWindow to false
-        -- 设定黄金分辨率大小宽 550, 高 360
-        set the bounds of containerWindow to {400, 200, 950, 560}
-        set icon size of icon view options of containerWindow to 128
-        set arrangement of icon view options of containerWindow to not arranged
-        
-        -- 对称拖拽排版
-        set position of item "EasyRight.app" to {150, 180}
-        set position of item "Applications" to {400, 180}
-        
-        delay 1
-        close containerWindow
+device=$(hdiutil attach -nobrowse -readwrite "$RAW_DMG" 2>/dev/null | egrep '/Volumes/' | awk '{print $1}' || true)
+if [ -n "$device" ]; then
+    sleep 1
+    osascript -e '
+    tell application "Finder"
+        try
+            tell disk "EasyRight"
+                open
+                delay 0.5
+                set containerWindow to container window of disk "EasyRight"
+                set current view of containerWindow to icon view
+                set toolbar visible of containerWindow to false
+                set statusbar visible of containerWindow to false
+                set the bounds of containerWindow to {400, 200, 950, 560}
+                set icon size of icon view options of containerWindow to 128
+                set arrangement of icon view options of containerWindow to not arranged
+                set position of item "EasyRight.app" to {150, 180}
+                set position of item "Applications" to {400, 180}
+                delay 0.5
+                close containerWindow
+            end tell
+        end try
     end tell
-end tell
-EOF
-
-sleep 1
-hdiutil detach "$device" >/dev/null || true
+    ' 2>/dev/null || true
+    hdiutil detach "$device" >/dev/null 2>&1 || true
+fi
 sleep 1
 
 # D. 转换为正式发布版只读高压缩 DMG (UDZO 格式)
 FINAL_DMG="$BUILD_DIR/EasyRight.dmg"
 rm -f "$FINAL_DMG"
 echo "⚡ [Build] 正在将原始映像转换为只读高压缩分发级 DMG..."
-hdiutil convert "$RAW_DMG" -format UDZO -imagekey zlib-level=9 -o "$FINAL_DMG" >/dev/null
+hdiutil convert "$RAW_DMG" -format UDZO -o "$FINAL_DMG" >/dev/null
 
 if [ "$DISTRIBUTION_ROUTE" = "website-release" ]; then
     echo "🧾 [Build] 提交 DMG 到 Apple notary service 并 stapler 附票..."
