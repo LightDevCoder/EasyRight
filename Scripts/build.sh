@@ -259,7 +259,9 @@ HOST_SOURCES="
     Sources/EasyRight/Views/LiveMenuMockupView.swift \
     Sources/EasyRight/Views/ActionInspectorView.swift \
     Sources/EasyRight/Views/OnboardingView.swift \
+    Sources/EasyRight/Views/PresetSelectionSheet.swift \
     Sources/EasyRight/Views/CustomAppsSettingsView.swift \
+    Sources/EasyRight/Core/AppLanguageManager.swift \
     Sources/EasyRight/Core/MenuAction.swift \
     Sources/EasyRight/Core/MenuCanvasItem.swift \
     Sources/EasyRight/Core/ActionTagMapper.swift \
@@ -303,6 +305,7 @@ HOST_SOURCES="
 
 EXT_SOURCES="
     Sources/EasyRightExtension/FinderSync.swift \
+    Sources/EasyRight/Core/AppLanguageManager.swift \
     Sources/EasyRight/Core/MenuAction.swift \
     Sources/EasyRight/Core/MenuCanvasItem.swift \
     Sources/EasyRight/Core/ActionTagMapper.swift \
@@ -478,6 +481,9 @@ touch "$DMG_TEMP_DIR/.metadata_never_index"
 # A. 拷贝 App 以及 Applications 快捷方式
 cp -R "$APP_BUNDLE" "$DMG_TEMP_DIR/"
 ln -s /Applications "$DMG_TEMP_DIR/Applications"
+if [ -f "$BUILD_DIR/AppIcon.icns" ]; then
+    cp "$BUILD_DIR/AppIcon.icns" "$DMG_TEMP_DIR/.VolumeIcon.icns"
+fi
 
 # B. 创建原始可写 DMG (UDRW 格式)
 RAW_DMG="$BUILD_DIR/EasyRight_raw.dmg"
@@ -501,6 +507,12 @@ echo "🎨 [Build] 静默挂载临时磁盘映像并启动 Finder 视觉排版�
 device=$(hdiutil attach -nobrowse -readwrite "$RAW_DMG" 2>/dev/null | egrep '/Volumes/' | awk '{print $1}' || true)
 if [ -n "$device" ]; then
     sleep 1
+    if [ -f "$BUILD_DIR/AppIcon.icns" ] && [ -d "/Volumes/EasyRight" ]; then
+        cp "$BUILD_DIR/AppIcon.icns" "/Volumes/EasyRight/.VolumeIcon.icns" 2>/dev/null || true
+        SetFile -c icnC "/Volumes/EasyRight/.VolumeIcon.icns" 2>/dev/null || true
+        SetFile -a C "/Volumes/EasyRight" 2>/dev/null || true
+        SetFile -a V "/Volumes/EasyRight/.VolumeIcon.icns" 2>/dev/null || true
+    fi
     osascript -e '
     tell application "Finder"
         try
@@ -522,8 +534,10 @@ if [ -n "$device" ]; then
         end try
     end tell
     ' 2>/dev/null || true
-    hdiutil detach "$device" >/dev/null 2>&1 || true
+    sync
+    hdiutil detach "$device" -force >/dev/null 2>&1 || hdiutil detach "$device" >/dev/null 2>&1 || true
 fi
+sync
 sleep 1
 
 # D. 转换为正式发布版只读高压缩 DMG (UDZO 格式)

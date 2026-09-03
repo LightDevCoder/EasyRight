@@ -7,23 +7,23 @@ public extension MenuAction {
     var targetScopeDescription: String {
         switch category {
         case .newFile:
-            return "空白/目录"
+            return L10n.tr("空白/目录", "Blank / Folder")
         case .fileManage:
             if actionId.contains("paste") {
-                return "剪贴板"
+                return L10n.tr("剪贴板", "Clipboard")
             }
-            return "文件/目录"
+            return L10n.tr("文件/目录", "Files / Folders")
         case .terminal:
-            return "目录/容器"
+            return L10n.tr("目录/容器", "Folders / Packages")
         case .utility:
             if actionId.contains("qr") {
-                return "剪贴/文本"
+                return L10n.tr("剪贴/文本", "Clipboard / Text")
             } else if actionId.contains("convert") {
-                return "图像文件"
+                return L10n.tr("图像文件", "Images")
             } else if actionId.contains("hash") || actionId.contains("md5") || actionId.contains("sha") {
-                return "任意文件"
+                return L10n.tr("任意文件", "Any Files")
             }
-            return "通用"
+            return L10n.tr("通用", "General")
         }
     }
 }
@@ -80,7 +80,7 @@ public struct ActiveMenuCanvasView: View {
         HStack(spacing: DesignTokens.Spacing.sm) {
             // 标题与项目计数胶囊
             HStack(spacing: 6) {
-                Text("已编排菜单")
+                Text(L10n.tr("已编排菜单", "Menu Canvas"))
                     .font(DesignTokens.Typography.sectionTitle)
                     .foregroundStyle(DesignTokens.Colors.primaryText)
                     .lineLimit(1)
@@ -121,7 +121,7 @@ public struct ActiveMenuCanvasView: View {
                 HStack(spacing: 4) {
                     Image(systemName: "plus")
                         .font(.system(size: 10, weight: .bold))
-                    Text("添加分隔线")
+                    Text(L10n.tr("添加分隔线", "Add Separator"))
                         .font(DesignTokens.Typography.captionMedium)
                         .lineLimit(1)
                         .fixedSize()
@@ -138,7 +138,7 @@ public struct ActiveMenuCanvasView: View {
                 )
             }
             .buttonStyle(.plain)
-            .help("在菜单末尾插入一条系统分隔线")
+            .help(L10n.tr("在菜单末尾插入一条系统分隔线", "Insert a system separator at the end of the menu"))
 
             // 恢复默认
             Button {
@@ -149,7 +149,7 @@ public struct ActiveMenuCanvasView: View {
                 HStack(spacing: 4) {
                     Image(systemName: "arrow.counterclockwise")
                         .font(.system(size: 10))
-                    Text("恢复默认")
+                    Text(L10n.tr("恢复默认", "Reset to Default"))
                         .font(DesignTokens.Typography.captionMedium)
                         .lineLimit(1)
                         .fixedSize()
@@ -166,7 +166,7 @@ public struct ActiveMenuCanvasView: View {
                 )
             }
             .buttonStyle(.plain)
-            .help("重置菜单为默认动作组合")
+            .help(L10n.tr("重置菜单为默认动作组合", "Reset menu to default action layout"))
 
             // 清空
             Button {
@@ -177,7 +177,7 @@ public struct ActiveMenuCanvasView: View {
                 HStack(spacing: 4) {
                     Image(systemName: "trash")
                         .font(.system(size: 10))
-                    Text("清空")
+                    Text(L10n.tr("清空", "Clear All"))
                         .font(DesignTokens.Typography.captionMedium)
                         .lineLimit(1)
                         .fixedSize()
@@ -195,7 +195,7 @@ public struct ActiveMenuCanvasView: View {
                 )
             }
             .buttonStyle(.plain)
-            .help("清空当前编排的所有项目")
+            .help(L10n.tr("清空当前编排的所有项目", "Clear all staged items from the canvas"))
 
             // 实时预览切换
             Button {
@@ -207,7 +207,7 @@ public struct ActiveMenuCanvasView: View {
                     Image(systemName: coordinator.isLivePreviewPresented ? "eye.fill" : "eye.slash")
                         .font(.system(size: 10))
                         .foregroundStyle(coordinator.isLivePreviewPresented ? Color.accentColor : DesignTokens.Colors.secondaryText)
-                    Text("实时预览")
+                    Text(L10n.tr("实时预览", "Live Preview"))
                         .font(DesignTokens.Typography.captionMedium)
                         .lineLimit(1)
                         .fixedSize()
@@ -225,7 +225,7 @@ public struct ActiveMenuCanvasView: View {
                 )
             }
             .buttonStyle(.plain)
-            .help(coordinator.isLivePreviewPresented ? "收起右侧实时原生菜单预览" : "展开右侧实时原生菜单预览")
+            .help(coordinator.isLivePreviewPresented ? L10n.tr("收起右侧实时原生菜单预览", "Hide 1:1 Live Preview") : L10n.tr("展开右侧实时原生菜单预览", "Show 1:1 Live Preview"))
         }
     }
 
@@ -423,7 +423,7 @@ public struct ActiveMenuCanvasView: View {
                         Image(systemName: "plus.circle")
                             .font(.system(size: 12))
                             .foregroundStyle(isBottomTargeted ? Color.accentColor : DesignTokens.Colors.tertiaryText)
-                        Text("拖拽至此添加到末尾")
+                        Text(L10n.tr("拖拽至此添加到末尾", "Drag here to append to bottom"))
                             .font(DesignTokens.Typography.caption)
                             .foregroundStyle(isBottomTargeted ? Color.accentColor : DesignTokens.Colors.tertiaryText)
                     }
@@ -463,11 +463,11 @@ public struct ActiveMenuCanvasView: View {
             }
 
             VStack(spacing: DesignTokens.Spacing.xs) {
-                Text("菜单暂无编排动作")
+                Text(L10n.tr("菜单暂无编排动作", "No actions staged"))
                     .font(DesignTokens.Typography.cardTitle)
                     .foregroundStyle(DesignTokens.Colors.secondaryText)
 
-                Text("从左侧动作资源库点击“+”或拖拽动作至此，也可一键添加常用推荐动作")
+                Text(L10n.tr("从左侧动作资源库点击“+”或拖拽动作至此，也可一键添加常用推荐动作", "Click '+' or drag actions from the library here, or add recommended actions"))
                     .font(DesignTokens.Typography.caption)
                     .foregroundStyle(DesignTokens.Colors.tertiaryText)
                     .multilineTextAlignment(.center)
@@ -482,7 +482,7 @@ public struct ActiveMenuCanvasView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "sparkles")
                         .font(.system(size: 11))
-                    Text("添加常用动作")
+                    Text(L10n.tr("添加常用动作", "Add Recommended Actions"))
                         .font(DesignTokens.Typography.bodyMedium)
                 }
                 .padding(.horizontal, 14)
@@ -512,7 +512,7 @@ public struct ActiveMenuCanvasView: View {
     // MARK: - Bottom Status Bar
     private var bottomStatusBar: some View {
         HStack {
-            Text("共 \(coordinator.canvasItems.count) 项 (\(coordinator.stagedActionCount) 动作)")
+            Text(L10n.tr("共 \(coordinator.canvasItems.count) 项 (\(coordinator.stagedActionCount) 动作)", "\(coordinator.canvasItems.count) Items (\(coordinator.stagedActionCount) Actions)"))
                 .font(DesignTokens.Typography.caption2)
                 .foregroundStyle(DesignTokens.Colors.tertiaryText)
                 .lineLimit(1)
@@ -520,7 +520,7 @@ public struct ActiveMenuCanvasView: View {
 
             Spacer(minLength: 4)
 
-            Text("支持自由拖拽重排与快速移除")
+            Text(L10n.tr("支持自由拖拽重排与快速移除", "Drag to reorder or click to remove"))
                 .font(DesignTokens.Typography.caption2)
                 .foregroundStyle(DesignTokens.Colors.tertiaryText)
                 .lineLimit(1)
@@ -639,7 +639,7 @@ public struct CanvasActionRowView: View {
 
                         // 高风险徽章
                         if action.isHighRisk {
-                            Text("高风险")
+                            Text(L10n.tr("高风险", "High Risk"))
                                 .font(.system(size: 9, weight: .medium))
                                 .foregroundStyle(DesignTokens.Colors.statusAmber)
                                 .padding(.horizontal, 4)
@@ -773,7 +773,7 @@ public struct CanvasSeparatorRowView: View {
                     .fill(DesignTokens.Colors.separator)
                     .frame(height: 1)
 
-                Text("── 分隔线 (Separator) ──")
+                Text(L10n.tr("── 分隔线 ──", "── Separator ──"))
                     .font(DesignTokens.Typography.caption2)
                     .foregroundStyle(DesignTokens.Colors.tertiaryText)
                     .fixedSize()

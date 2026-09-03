@@ -12,10 +12,10 @@ public enum ActionCategory: String, Codable, CaseIterable, Identifiable, Sendabl
     
     public var localizedName: String {
         switch self {
-        case .newFile: return "新建文件"
-        case .fileManage: return "文件管理"
-        case .terminal: return "终端/编辑器"
-        case .utility: return "实用工具"
+        case .newFile: return L10n.tr("新建文件", "New File")
+        case .fileManage: return L10n.tr("文件管理", "File Management")
+        case .terminal: return L10n.tr("终端/编辑器", "Terminal & Editor")
+        case .utility: return L10n.tr("实用工具", "Utilities")
         }
     }
 }

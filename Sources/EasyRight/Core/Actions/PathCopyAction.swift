@@ -19,8 +19,8 @@ public final class PathCopyAction: MenuAction, @unchecked Sendable {
 
     public var localizedTitle: String {
         switch kind {
-        case .shellEscaped: return "复制 Shell 安全路径"
-        case .gitRelative: return "复制 Git 相对路径"
+        case .shellEscaped: return L10n.tr("复制 Shell 安全路径", "Copy Shell Escaped Path")
+        case .gitRelative: return L10n.tr("复制 Git 相对路径", "Copy Git Relative Path")
         }
     }
 

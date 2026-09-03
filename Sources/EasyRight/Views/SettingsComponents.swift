@@ -230,7 +230,7 @@ struct ExtensionStatusBanner: View {
                     Spacer(minLength: 12)
 
                     if snapshot.recommendedRepairAction == .none {
-                        Label("正常", systemImage: "checkmark")
+                        Label(L10n.tr("正常", "Ready"), systemImage: "checkmark")
                             .font(.caption)
                             .foregroundStyle(.green)
                     } else {
@@ -249,13 +249,13 @@ struct ExtensionStatusBanner: View {
                         .tint(bannerColor(snapshot))
                         .disabled(isRepairRunning)
                         .accessibilityLabel(
-                            isRepairRunning ? "修复中" : bannerButtonTitle(snapshot)
+                            isRepairRunning ? L10n.tr("修复中", "Repairing") : bannerButtonTitle(snapshot)
                         )
                     }
                 }
                 .padding(.vertical, 4)
             } else {
-                ProgressView("正在检测右键菜单状态…")
+                ProgressView(L10n.tr("正在检测右键菜单状态…", "Diagnosing context menu state…"))
                     .controlSize(.small)
             }
         }
@@ -349,34 +349,34 @@ struct ExtensionStatusBanner: View {
 
     private func bannerTitle(_ snapshot: RightClickMenuHealthSnapshot) -> String {
         switch snapshot.healthLevel {
-        case .healthy: return "Finder 右键菜单可用"
-        case .warning: return "Finder 右键菜单需要检查"
-        case .critical: return "Finder 右键菜单不可用"
+        case .healthy: return L10n.tr("Finder 右键菜单可用", "Finder Context Menu Ready")
+        case .warning: return L10n.tr("Finder 右键菜单需要检查", "Finder Context Menu Needs Attention")
+        case .critical: return L10n.tr("Finder 右键菜单不可用", "Finder Context Menu Unavailable")
         }
     }
 
     private func bannerSubtitle(_ snapshot: RightClickMenuHealthSnapshot) -> String {
         switch snapshot.recommendedRepairAction {
         case .none:
-            return "扩展心跳与动作队列状态正常"
+            return L10n.tr("扩展心跳与动作队列状态正常", "Extension heartbeat and action queue are healthy")
         case .openFullDiskAccessSettings:
-            return "受保护目录的文件操作可能受限"
+            return L10n.tr("受保护目录的文件操作可能受限", "File operations in protected directories may be limited")
         case .registerExtension:
-            return "扩展未注册或尚未启用"
+            return L10n.tr("扩展未注册或尚未启用", "Extension not registered or not enabled")
         case .restartFinder:
-            return "扩展状态尚未刷新"
+            return L10n.tr("扩展状态尚未刷新", "Extension status not yet refreshed")
         case .relaunchAppAndRestartFinder:
-            return "主程序与 Finder 需要重新加载"
+            return L10n.tr("主程序与 Finder 需要重新加载", "App and Finder need to be relaunched")
         }
     }
 
     private func bannerButtonTitle(_ snapshot: RightClickMenuHealthSnapshot) -> String {
         switch snapshot.recommendedRepairAction {
-        case .none: return "重新检测"
-        case .openFullDiskAccessSettings: return "权限设置"
-        case .registerExtension: return "注册扩展"
-        case .restartFinder: return "重启 Finder"
-        case .relaunchAppAndRestartFinder: return "重新打开"
+        case .none: return L10n.tr("重新检测", "Re-diagnose")
+        case .openFullDiskAccessSettings: return L10n.tr("权限设置", "Permissions")
+        case .registerExtension: return L10n.tr("注册扩展", "Register Extension")
+        case .restartFinder: return L10n.tr("重启 Finder", "Relaunch Finder")
+        case .relaunchAppAndRestartFinder: return L10n.tr("重新打开", "Relaunch")
         }
     }
 

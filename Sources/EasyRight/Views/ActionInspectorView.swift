@@ -13,10 +13,10 @@ public enum ActionTargetScope: String, CaseIterable, Identifiable, Sendable {
 
     public var displayName: String {
         switch self {
-        case .singleFile: return "单个文件"
-        case .multipleFiles: return "多个文件"
-        case .directory: return "文件夹"
-        case .blankArea: return "空白区域"
+        case .singleFile: return L10n.tr("单个文件", "Single File")
+        case .multipleFiles: return L10n.tr("多个文件", "Multiple Files")
+        case .directory: return L10n.tr("文件夹", "Folder")
+        case .blankArea: return L10n.tr("空白区域", "Blank Area")
         }
     }
 
@@ -364,7 +364,7 @@ public struct ActionInspectorView: View {
                     .font(.system(size: DesignTokens.Icon.small))
                     .foregroundStyle(Color.accentColor)
 
-                Text("动作详情")
+                Text(L10n.tr("动作详情", "Action Details"))
                     .font(DesignTokens.Typography.sectionTitle)
                     .foregroundStyle(DesignTokens.Colors.primaryText)
             }
@@ -387,7 +387,7 @@ public struct ActionInspectorView: View {
                         )
                 }
                 .buttonStyle(.plain)
-                .help("关闭检查器")
+                .help(L10n.tr("关闭检查器", "Close Inspector"))
             }
         }
         .padding(.horizontal, DesignTokens.Spacing.md)
@@ -992,11 +992,11 @@ public struct ActionInspectorView: View {
             }
 
             VStack(spacing: DesignTokens.Spacing.xs) {
-                Text("选择动作以查看详情")
+                Text(L10n.tr("选择动作以查看详情", "Select an Action for Details"))
                     .font(DesignTokens.Typography.cardTitle)
                     .foregroundStyle(DesignTokens.Colors.secondaryText)
 
-                Text("在左侧资源库或中间画布点击任意动作，即可查看其适用场景、参数配置与权限要求。")
+                Text(L10n.tr("在左侧资源库或中间画布点击任意动作，即可查看其适用场景、参数配置与权限要求。", "Click any action in the library or canvas to inspect rules, parameters, and permissions."))
                     .font(DesignTokens.Typography.caption)
                     .foregroundStyle(DesignTokens.Colors.tertiaryText)
                     .multilineTextAlignment(.center)
@@ -1005,9 +1005,9 @@ public struct ActionInspectorView: View {
 
             // Quick Tips
             VStack(alignment: .leading, spacing: 6) {
-                tipRow(icon: "target", text: "检查单文件/多文件/空白处触发规则")
-                tipRow(icon: "terminal", text: "查看终端与编辑器关联应用状态")
-                tipRow(icon: "shield", text: "了解破坏性动作的高风险机制与权限")
+                tipRow(icon: "target", text: L10n.tr("检查单文件/多文件/空白处触发规则", "Inspect trigger rules for files and folders"))
+                tipRow(icon: "terminal", text: L10n.tr("查看终端与编辑器关联应用状态", "Check terminal and editor application status"))
+                tipRow(icon: "shield", text: L10n.tr("了解破坏性动作的高风险机制与权限", "Understand high-risk actions and permissions"))
             }
             .padding(10)
             .background(

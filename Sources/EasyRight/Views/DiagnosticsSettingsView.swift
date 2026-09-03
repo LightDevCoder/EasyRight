@@ -11,40 +11,40 @@ struct DiagnosticsSettingsView: View {
 
     var body: some View {
         Form {
-            Section("运行状态") {
+            Section(L10n.tr("运行状态", "Service Status")) {
                 if let snapshot {
                     SettingsStatusRow(
-                        title: "右键菜单服务",
+                        title: L10n.tr("右键菜单服务", "Context Menu Service"),
                         value: menuServiceValue(snapshot),
                         detail: menuServiceDetail(snapshot),
                         level: menuServiceLevel(snapshot)
                     )
                     SettingsStatusRow(
-                        title: "文件访问",
-                        value: snapshot.fullDiskAccessState == .granted ? "已授权" : "受限",
-                        detail: "完全磁盘访问只影响受保护文件，不决定菜单是否出现。",
+                        title: L10n.tr("文件访问", "File Access"),
+                        value: snapshot.fullDiskAccessState == .granted ? L10n.tr("已授权", "Granted") : L10n.tr("受限", "Restricted"),
+                        detail: L10n.tr("完全磁盘访问只影响受保护文件，不决定菜单是否出现。", "Full Disk Access affects protected files only; it does not block menu presentation."),
                         level: snapshot.fullDiskAccessState == .granted ? .normal : .warning
                     )
                     SettingsStatusRow(
-                        title: "动作队列",
+                        title: L10n.tr("动作队列", "Action Queue"),
                         value: queueValue(snapshot),
                         detail: queueDetail(snapshot),
                         level: queueLevel(snapshot)
                     )
                 } else {
-                    ProgressView("正在检测右键菜单状态…")
+                    ProgressView(L10n.tr("正在检测右键菜单状态…", "Diagnosing context menu state…"))
                 }
 
                 Button(action: refresh) {
-                    Label("重新检测", systemImage: "arrow.clockwise")
+                    Label(L10n.tr("重新检测", "Re-diagnose"), systemImage: "arrow.clockwise")
                 }
                 .disabled(isRepairRunning)
             }
 
-            Section("建议修复") {
+            Section(L10n.tr("建议修复", "Recommended Repair")) {
                 if let snapshot {
                     if snapshot.recommendedRepairAction == .none {
-                        Label("当前无需修复", systemImage: "checkmark.circle.fill")
+                        Label(L10n.tr("当前无需修复", "No Repair Needed"), systemImage: "checkmark.circle.fill")
                             .foregroundStyle(.green)
                     } else {
                         Button {
@@ -54,7 +54,7 @@ struct DiagnosticsSettingsView: View {
                                 HStack(spacing: 8) {
                                     ProgressView()
                                         .controlSize(.small)
-                                    Text("修复中…")
+                                    Text(L10n.tr("修复中…", "Repairing…"))
                                 }
                             } else {
                                 Label(
@@ -71,42 +71,42 @@ struct DiagnosticsSettingsView: View {
                             .foregroundStyle(.secondary)
                     }
                 } else {
-                    Text("完成检测后会显示最优先的修复动作。")
+                    Text(L10n.tr("完成检测后会显示最优先的修复动作。", "Prioritized repair actions will appear after diagnosis."))
                         .foregroundStyle(.secondary)
                 }
             }
 
-            Section("支持工具") {
+            Section(L10n.tr("支持工具", "Support Tools")) {
                 Button(action: copyDiagnosticReport) {
-                    Label("复制诊断报告", systemImage: "doc.on.doc")
+                    Label(L10n.tr("复制诊断报告", "Copy Diagnostic Report"), systemImage: "doc.on.doc")
                 }
                 .disabled(snapshot == nil)
 
                 Button(action: copyLogQuery) {
-                    Label("复制 Console 查询条件", systemImage: "line.3.horizontal.decrease.circle")
+                    Label(L10n.tr("复制 Console 查询条件", "Copy Console Query"), systemImage: "line.3.horizontal.decrease.circle")
                 }
 
                 Button(action: openConsole) {
-                    Label("打开 Console", systemImage: "terminal")
+                    Label(L10n.tr("打开 Console", "Open Console"), systemImage: "terminal")
                 }
 
                 Button(action: showSharedDirectory) {
-                    Label("显示共享目录", systemImage: "folder")
+                    Label(L10n.tr("显示共享目录", "Show Shared Directory"), systemImage: "folder")
                 }
 
                 Button(action: clearFailedActions) {
-                    Label("清空失败动作", systemImage: "trash")
+                    Label(L10n.tr("清空失败动作", "Clear Failed Actions"), systemImage: "trash")
                 }
                 .disabled((snapshot?.failedActionCount ?? 0) == 0)
             }
 
-            Section("日志") {
-                Toggle("启用详细调试日志", isOn: Binding(
+            Section(L10n.tr("日志", "Logging")) {
+                Toggle(L10n.tr("启用详细调试日志", "Enable Verbose Debug Logs"), isOn: Binding(
                     get: { isDebugLoggingEnabled },
                     set: saveDebugLogging
                 ))
 
-                Text("默认关闭。仅在排查问题时开启，完成后建议关闭。")
+                Text(L10n.tr("默认关闭。仅在排查问题时开启，完成后建议关闭。", "Disabled by default. Enable only for troubleshooting; disable when finished."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -272,23 +272,26 @@ struct DiagnosticsSettingsView: View {
 
     private func menuServiceValue(_ snapshot: RightClickMenuHealthSnapshot) -> String {
         switch snapshot.menuServiceLevel {
-        case .healthy: return "可用"
-        case .unverified: return "待确认"
-        case .unavailable: return "不可用"
+        case .healthy: return L10n.tr("可用", "Available")
+        case .unverified: return L10n.tr("待确认", "Unverified")
+        case .unavailable: return L10n.tr("不可用", "Unavailable")
         }
     }
 
     private func menuServiceDetail(_ snapshot: RightClickMenuHealthSnapshot) -> String {
         let registration: String
         switch snapshot.finderExtensionState {
-        case .enabled: registration = "扩展已启用"
-        case .registeredButNotEnabled: registration = "扩展已注册但未启用"
-        case .notRegistered: registration = "扩展未注册"
-        case .unknown: registration = "扩展注册状态未知"
+        case .enabled: registration = L10n.tr("扩展已启用", "Extension enabled")
+        case .registeredButNotEnabled: registration = L10n.tr("扩展已注册但未启用", "Extension registered but disabled")
+        case .notRegistered: registration = L10n.tr("扩展未注册", "Extension not registered")
+        case .unknown: registration = L10n.tr("扩展注册状态未知", "Extension status unknown")
         }
-        let scope = snapshot.watchScope == .everywhere ? "所有目录" : "自定义目录"
-        let cloud = snapshot.cloudCompatibilityEnabled ? "云盘兼容已开启" : "云盘兼容已关闭"
-        return "\(registration)；\(scope)，\(cloud)，实际监听 \(snapshot.observedPathCount) 个入口；File Provider 目录可从“服务”使用收藏/常用快捷动作，或通过“EasyRight…”打开完整分类面板。"
+        let scope = snapshot.watchScope == .everywhere ? L10n.tr("所有目录", "Everywhere") : L10n.tr("自定义目录", "Custom paths")
+        let cloud = snapshot.cloudCompatibilityEnabled ? L10n.tr("云盘兼容已开启", "Cloud compatibility on") : L10n.tr("云盘兼容已关闭", "Cloud compatibility off")
+        return L10n.tr(
+            "\(registration)；\(scope)，\(cloud)，实际监听 \(snapshot.observedPathCount) 个入口；File Provider 目录可从“服务”使用快捷动作，或通过“EasyRight…”打开面板。",
+            "\(registration); \(scope), \(cloud), observing \(snapshot.observedPathCount) roots. Cloud storage folders can use Services or 'EasyRight…'."
+        )
     }
 
     private func queueLevel(_ snapshot: RightClickMenuHealthSnapshot) -> SettingsStatusLevel {
@@ -298,21 +301,21 @@ struct DiagnosticsSettingsView: View {
     }
 
     private func queueValue(_ snapshot: RightClickMenuHealthSnapshot) -> String {
-        "待处理 \(snapshot.pendingActionCount)，失败 \(snapshot.failedActionCount)"
+        L10n.tr("待处理 \(snapshot.pendingActionCount)，失败 \(snapshot.failedActionCount)", "Pending: \(snapshot.pendingActionCount), Failed: \(snapshot.failedActionCount)")
     }
 
     private func queueDetail(_ snapshot: RightClickMenuHealthSnapshot) -> String {
-        guard let age = snapshot.oldestPendingAge else { return "当前没有等待中的动作。" }
-        return "最久等待 \(Int(age)) 秒。失败动作可在下方清理。"
+        guard let age = snapshot.oldestPendingAge else { return L10n.tr("当前没有等待中的动作。", "No pending actions in queue.") }
+        return L10n.tr("最久等待 \(Int(age)) 秒。失败动作可在下方清理。", "Oldest pending \(Int(age))s. Failed actions can be cleared below.")
     }
 
     private func repairButtonTitle(_ action: RecommendedRepairAction) -> String {
         switch action {
-        case .none: return "重新检测"
-        case .openFullDiskAccessSettings: return "打开完全磁盘访问设置"
-        case .registerExtension: return "一键注册扩展"
-        case .restartFinder: return "重启 Finder"
-        case .relaunchAppAndRestartFinder: return "重新打开并重启 Finder"
+        case .none: return L10n.tr("重新检测", "Re-diagnose")
+        case .openFullDiskAccessSettings: return L10n.tr("打开完全磁盘访问设置", "Open Full Disk Access Settings")
+        case .registerExtension: return L10n.tr("一键注册扩展", "Register Extension")
+        case .restartFinder: return L10n.tr("重启 Finder", "Relaunch Finder")
+        case .relaunchAppAndRestartFinder: return L10n.tr("重新打开并重启 Finder", "Relaunch App & Finder")
         }
     }
 
@@ -329,15 +332,15 @@ struct DiagnosticsSettingsView: View {
     private func repairHint(_ action: RecommendedRepairAction) -> String {
         switch action {
         case .none:
-            return "当前无需修复。"
+            return L10n.tr("当前无需修复。", "No repair needed at this time.")
         case .openFullDiskAccessSettings:
-            return "完全磁盘访问影响受保护文件操作；授权后若仍未生效，请回到 Finder 页重新检测。"
+            return L10n.tr("完全磁盘访问影响受保护文件操作；授权后若仍未生效，请回到 Finder 页重新检测。", "Full Disk Access affects protected files. Re-diagnose after granting permission.")
         case .registerExtension:
-            return "Finder 扩展未处于可用状态，将重新注册、启用并刷新 Finder。"
+            return L10n.tr("Finder 扩展未处于可用状态，将重新注册、启用并刷新 Finder。", "Finder extension is not active. It will be re-registered and enabled.")
         case .restartFinder:
-            return "扩展已注册，但当前 Finder 会话尚未报告有效心跳。"
+            return L10n.tr("扩展已注册，但当前 Finder 会话尚未报告有效心跳。", "Extension registered, but current Finder session has not reported a valid heartbeat.")
         case .relaunchAppAndRestartFinder:
-            return "主程序和 Finder 都需要重新加载，当前窗口会在新进程启动后关闭。"
+            return L10n.tr("主程序和 Finder 都需要重新加载，当前窗口会在新进程启动后关闭。", "Both host app and Finder need to be relaunched.")
         }
     }
 }

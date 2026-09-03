@@ -21,15 +21,15 @@ public enum SupportedFileType: String, CaseIterable, Codable, Identifiable {
     
     public var displayName: String {
         switch self {
-        case .txt: return "文本文件 (.txt)"
-        case .md: return "Markdown 文档 (.md)"
-        case .json: return "JSON 配置文件 (.json)"
-        case .csv: return "CSV 表格 (.csv)"
-        case .html: return "HTML 网页 (.html)"
-        case .docx: return "Word 文档 (.docx)"
-        case .xlsx: return "Excel 表格 (.xlsx)"
-        case .pptx: return "PPT 演示文稿 (.pptx)"
-        case .pdf: return "PDF 电子书 (.pdf)"
+        case .txt: return L10n.tr("文本文件 (.txt)", "Plain Text (.txt)")
+        case .md: return L10n.tr("Markdown 文档 (.md)", "Markdown Document (.md)")
+        case .json: return L10n.tr("JSON 配置文件 (.json)", "JSON Configuration (.json)")
+        case .csv: return L10n.tr("CSV 表格 (.csv)", "CSV Spreadsheet (.csv)")
+        case .html: return L10n.tr("HTML 网页 (.html)", "HTML Webpage (.html)")
+        case .docx: return L10n.tr("Word 文档 (.docx)", "Word Document (.docx)")
+        case .xlsx: return L10n.tr("Excel 表格 (.xlsx)", "Excel Spreadsheet (.xlsx)")
+        case .pptx: return L10n.tr("PPT 演示文稿 (.pptx)", "PowerPoint Presentation (.pptx)")
+        case .pdf: return L10n.tr("PDF 电子书 (.pdf)", "PDF Document (.pdf)")
         }
     }
     
@@ -96,7 +96,9 @@ public enum SupportedFileType: String, CaseIterable, Codable, Identifiable {
 /// 新建文件动作实现类
 public final class NewFileAction: MenuAction {
     public let actionId: String
-    public let localizedTitle: String
+    public var localizedTitle: String {
+        L10n.tr("新建 \(fileType.displayName)", "New \(fileType.displayName)")
+    }
     public let iconName: String?
     public let category: ActionCategory = .newFile
     
@@ -120,7 +122,6 @@ public final class NewFileAction: MenuAction {
         self.fileType = fileType
         self.customTemplateURL = customTemplateURL
         self.actionId = "easyright.action.newfile.\(fileType.rawValue)"
-        self.localizedTitle = "新建 \(fileType.displayName)"
         
         switch fileType {
         case .txt: self.iconName = "doc.text"

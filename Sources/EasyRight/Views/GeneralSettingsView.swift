@@ -9,6 +9,7 @@ struct OverviewSettingsView: View {
         case failed(message: String)
     }
 
+    @ObservedObject private var languageManager = AppLanguageManager.shared
     @State private var isLaunchEnabled = false
     @State private var isSilentLaunchEnabled = true
     @State private var showsSuccessHUD = true
@@ -22,8 +23,8 @@ struct OverviewSettingsView: View {
                 guard LaunchServiceManager.shared.setEnabled(newValue) else {
                     isLaunchEnabled = LaunchServiceManager.shared.isEnabled
                     SharedHUDManager.show(
-                        title: "自启设置失败",
-                        content: "请前往系统设置检查登录项权限",
+                        title: L10n.tr("自启设置失败", "Launch at Login Failed"),
+                        content: L10n.tr("请前往系统设置检查登录项权限", "Please check Login Items in System Settings"),
                         isSuccess: false
                     )
                     return
@@ -34,7 +35,7 @@ struct OverviewSettingsView: View {
                 ) else {
                     _ = LaunchServiceManager.shared.setEnabled(previousValue)
                     isLaunchEnabled = LaunchServiceManager.shared.isEnabled
-                    showConfigurationSaveFailure("登录时启动")
+                    showConfigurationSaveFailure(L10n.tr("登录时启动", "Launch at Login"))
                     return
                 }
                 isLaunchEnabled = newValue
@@ -44,37 +45,67 @@ struct OverviewSettingsView: View {
 
     var body: some View {
         Form {
-            Section("服务状态") {
-                ExtensionStatusBanner()
-            }
+            Section(L10n.tr("常规", "General")) {
+                Picker(L10n.tr("界面语言", "Language"), selection: $languageManager.language) {
+                    ForEach(AppLanguage.allCases) { lang in
+                        Text(lang.displayName).tag(lang)
+                    }
+                }
+                .pickerStyle(.menu)
 
-            Section("启动") {
-                Toggle("登录时启动EasyRight", isOn: launchEnabledBinding)
+                Toggle(L10n.tr("登录时启动EasyRight", "Launch EasyRight at Login"), isOn: launchEnabledBinding)
 
-                Toggle("后台启动时保持静默", isOn: Binding(
+                Toggle(L10n.tr("后台启动时保持静默", "Stay Silent in Background"), isOn: Binding(
                     get: { isSilentLaunchEnabled },
                     set: saveSilentLaunch
                 ))
             }
 
-            Section("反馈") {
-                Toggle("显示成功提示", isOn: Binding(
+            Section(L10n.tr("预设方案", "Layout Presets")) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(L10n.tr("起始菜单预设", "Starter Menu Presets"))
+                            .font(.body)
+                        Text(L10n.tr("从极简日常、开发者特供或全能全景中自由挑选菜单排布", "Choose from Minimalist, Developer, or Power User layouts"))
+                            .font(DesignTokens.Typography.caption)
+                            .foregroundStyle(DesignTokens.Colors.secondaryText)
+                    }
+
+                    Spacer()
+
+                    Button {
+                        NotificationCenter.default.post(name: .showPresetSelection, object: nil)
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "square.grid.2x2")
+                            Text(L10n.tr("切换预设…", "Switch Preset…"))
+                        }
+                    }
+                }
+            }
+
+            Section(L10n.tr("服务状态", "Service Status")) {
+                ExtensionStatusBanner()
+            }
+
+            Section(L10n.tr("反馈", "Feedback")) {
+                Toggle(L10n.tr("显示成功提示", "Show Success HUD"), isOn: Binding(
                     get: { showsSuccessHUD },
                     set: saveSuccessHUD
                 ))
             }
 
-            Section("关于") {
-                LabeledContent("版本") {
+            Section(L10n.tr("关于", "About")) {
+                LabeledContent(L10n.tr("版本", "Version")) {
                     Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0")
                         .foregroundStyle(.secondary)
                 }
-                LabeledContent("许可") {
+                LabeledContent(L10n.tr("许可", "License")) {
                     Text("MIT")
                         .foregroundStyle(.secondary)
                 }
-                LabeledContent("隐私") {
-                    Text("无广告 · 无遥测")
+                LabeledContent(L10n.tr("隐私", "Privacy")) {
+                    Text(L10n.tr("无广告 · 无遥测", "No Ads · No Telemetry"))
                         .foregroundStyle(.secondary)
                 }
                 Button(action: checkForUpdates) {
@@ -82,10 +113,10 @@ struct OverviewSettingsView: View {
                         HStack(spacing: 8) {
                             ProgressView()
                                 .controlSize(.small)
-                            Text("正在检查更新")
+                            Text(L10n.tr("正在检查更新", "Checking for Updates…"))
                         }
                     } else {
-                        Label("检查更新", systemImage: "arrow.clockwise")
+                        Label(L10n.tr("检查更新", "Check for Updates"), systemImage: "arrow.clockwise")
                     }
                 }
                 .disabled(isCheckingForUpdates)
@@ -95,7 +126,7 @@ struct OverviewSettingsView: View {
                 Button {
                     NotificationCenter.default.post(name: .showOnboarding, object: nil)
                 } label: {
-                    Label("重新运行新手引导…", systemImage: "sparkles")
+                    Label(L10n.tr("重新运行新手引导…", "Rerun Onboarding Wizard…"), systemImage: "sparkles")
                 }
 
                 Button {
@@ -103,7 +134,7 @@ struct OverviewSettingsView: View {
                         NSWorkspace.shared.open(url)
                     }
                 } label: {
-                    Label("查看 GitHub 源码", systemImage: "arrow.up.right.square")
+                    Label(L10n.tr("查看 GitHub 源码", "View GitHub Repository"), systemImage: "arrow.up.right.square")
                 }
             }
         }
@@ -132,17 +163,17 @@ struct OverviewSettingsView: View {
         case .idle, .checking:
             EmptyView()
         case .upToDate:
-            Label("当前已是最新版本", systemImage: "checkmark.circle.fill")
+            Label(L10n.tr("当前已是最新版本", "EasyRight is up to date"), systemImage: "checkmark.circle.fill")
                 .foregroundStyle(.green)
         case .available(let version, let releaseURL):
             HStack {
-                Label("发现新版本 \(version)", systemImage: "arrow.down.circle.fill")
+                Label(L10n.tr("发现新版本 \(version)", "New version \(version) available"), systemImage: "arrow.down.circle.fill")
                     .foregroundStyle(.blue)
                 Spacer()
                 Button {
                     NSWorkspace.shared.open(releaseURL)
                 } label: {
-                    Label("查看版本", systemImage: "arrow.up.right.square")
+                    Label(L10n.tr("查看版本", "View Release"), systemImage: "arrow.up.right.square")
                 }
             }
         case .failed(let message):

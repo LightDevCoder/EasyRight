@@ -56,10 +56,10 @@ public struct CustomAppsSettingsView: View {
                     Image(systemName: "arrow.up.forward.app")
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(Color.accentColor)
-                    Text("自定义应用动作")
+                    Text(L10n.tr("自定义应用动作", "Custom App Actions"))
                         .font(.system(size: 16, weight: .bold))
                 }
-                Text("将系统安装的任意软件（如 Keka 压缩解压、各类编辑器与播放器）添加至访达右键菜单")
+                Text(L10n.tr("将系统安装的任意软件（如 Keka 压缩解压、各类编辑器与播放器）添加至访达右键菜单", "Add installed apps (like Keka, editors, and media players) to Finder context menu"))
                     .font(.system(size: 12))
                     .foregroundStyle(DesignTokens.Colors.secondaryText)
             }
@@ -70,30 +70,30 @@ public struct CustomAppsSettingsView: View {
                 Button(role: .destructive) {
                     showClearConfirmation = true
                 } label: {
-                    Label("清空全部", systemImage: "trash")
+                    Label(L10n.tr("清空全部", "Clear All"), systemImage: "trash")
                         .font(.system(size: 12))
                 }
                 .buttonStyle(.bordered)
                 .confirmationDialog(
-                    "确认清空所有自定义应用动作？",
+                    L10n.tr("确认清空所有自定义应用动作？", "Clear all custom app actions?"),
                     isPresented: $showClearConfirmation,
                     titleVisibility: .visible
                 ) {
-                    Button("清空并删除配置", role: .destructive) {
+                    Button(L10n.tr("清空并删除配置", "Clear and Delete Config"), role: .destructive) {
                         withAnimation(DesignTokens.AnimationToken.quickSpring) {
                             coordinator.clearAllCustomAppActions()
                         }
                     }
-                    Button("取消", role: .cancel) {}
+                    Button(L10n.tr("取消", "Cancel"), role: .cancel) {}
                 } message: {
-                    Text("所有自定义应用动作都将从访达右键菜单及画布中移除，配置文件将被彻底删除。此操作无法撤销。")
+                    Text(L10n.tr("所有自定义应用动作都将从访达右键菜单及画布中移除，配置文件将被彻底删除。此操作无法撤销。", "All custom app actions will be removed from context menus and canvas. Configuration will be permanently deleted."))
                 }
             }
 
             Button {
                 pickAndAddApp()
             } label: {
-                Label("添加本地应用", systemImage: "plus")
+                Label(L10n.tr("添加本地应用", "Add Application"), systemImage: "plus")
                     .font(.system(size: 13, weight: .medium))
             }
             .buttonStyle(.borderedProminent)
@@ -221,11 +221,11 @@ public struct CustomAppsSettingsView: View {
                 .foregroundStyle(DesignTokens.Colors.tertiaryText)
 
             VStack(spacing: DesignTokens.Spacing.xs) {
-                Text("暂无自定义应用动作")
+                Text(L10n.tr("暂无自定义应用动作", "No Custom App Actions"))
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(DesignTokens.Colors.primaryText)
 
-                Text("你可以添加 Keka、Typora、IINA、Sublime Merge 等任意本地 App，\n右键即可直接将选中的文件或目录传递给目标应用。")
+                Text(L10n.tr("你可以添加 Keka、Typora、IINA、Sublime Merge 等任意本地 App，\n右键即可直接将选中的文件或目录传递给目标应用。", "Add any app like Keka, Typora, IINA, or Sublime Merge to pass selected files or folders directly."))
                     .font(.system(size: 12))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(DesignTokens.Colors.secondaryText)
@@ -235,7 +235,7 @@ public struct CustomAppsSettingsView: View {
             Button {
                 pickAndAddApp()
             } label: {
-                Label("从 /Applications 选取应用", systemImage: "plus")
+                Label(L10n.tr("从 /Applications 选取应用", "Choose App from /Applications"), systemImage: "plus")
                     .font(.system(size: 13, weight: .medium))
             }
             .buttonStyle(.borderedProminent)

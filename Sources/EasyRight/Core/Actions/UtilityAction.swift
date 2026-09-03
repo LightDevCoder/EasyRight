@@ -23,7 +23,22 @@ public enum UtilityType: String, Codable, Sendable {
 
 public final class UtilityAction: MenuAction, Sendable {
     public let actionId: String
-    public let localizedTitle: String
+    public var localizedTitle: String {
+        switch utilityType {
+        case .calculateMD5:
+            return L10n.tr("获取文件 MD5 校验码", "Calculate MD5 Checksum")
+        case .calculateSHA256:
+            return L10n.tr("获取文件 SHA256 校验码", "Calculate SHA256 Checksum")
+        case .toggleHiddenFiles:
+            return L10n.tr("切换显示隐藏文件", "Toggle Hidden Files")
+        case .textToQRCode:
+            return L10n.tr("从剪贴板生成二维码", "Generate QR Code from Clipboard")
+        case .convertToPNG:
+            return L10n.tr("转换为 PNG 格式", "Convert to PNG")
+        case .convertToJPEG:
+            return L10n.tr("转换为 JPEG 格式", "Convert to JPEG")
+        }
+    }
     public let iconName: String?
     public let category: ActionCategory = .utility
     
@@ -69,7 +84,7 @@ public final class UtilityAction: MenuAction, Sendable {
 
     public var riskDescription: String? {
         if utilityType == .toggleHiddenFiles {
-            return "会修改 Finder 系统偏好并重启 Finder，可能打断当前 Finder 操作。"
+            return L10n.tr("会修改 Finder 系统偏好并重启 Finder，可能打断当前 Finder 操作。", "Modifies Finder preferences and relaunches Finder, which may interrupt current Finder operations.")
         }
         return nil
     }
@@ -81,22 +96,16 @@ public final class UtilityAction: MenuAction, Sendable {
         
         switch type {
         case .calculateMD5:
-            self.localizedTitle = "获取文件 MD5 校验码"
             self.iconName = "number.square"
         case .calculateSHA256:
-            self.localizedTitle = "获取文件 SHA256 校验码"
             self.iconName = "number.square.fill"
         case .toggleHiddenFiles:
-            self.localizedTitle = "切换显示隐藏文件"
             self.iconName = "eye.slash"
         case .textToQRCode:
-            self.localizedTitle = "从剪贴板生成二维码"
             self.iconName = "qrcode"
         case .convertToPNG:
-            self.localizedTitle = "转换为 PNG 格式"
             self.iconName = "photo"
         case .convertToJPEG:
-            self.localizedTitle = "转换为 JPEG 格式"
             self.iconName = "photo.fill"
         }
     }

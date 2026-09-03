@@ -23,9 +23,9 @@ public enum TerminalEditorType: String, Codable, CaseIterable, Sendable {
     
     public var displayName: String {
         switch self {
-        case .terminal: return "系统终端 (Terminal)"
+        case .terminal: return L10n.tr("系统终端 (Terminal)", "Terminal")
         case .iterm2: return "iTerm2"
-        case .warp: return "Warp 终端"
+        case .warp: return L10n.tr("Warp 终端", "Warp")
         case .vscode: return "Visual Studio Code"
         case .sublime: return "Sublime Text"
         case .cursor: return "Cursor"
@@ -35,7 +35,9 @@ public enum TerminalEditorType: String, Codable, CaseIterable, Sendable {
 
 public final class TerminalOpenAction: MenuAction, @unchecked Sendable {
     public let actionId: String
-    public let localizedTitle: String
+    public var localizedTitle: String {
+        L10n.tr("在 \(appType.displayName) 中打开", "Open in \(appType.displayName)")
+    }
     public let iconName: String?
     public let category: ActionCategory = .terminal
     
@@ -56,7 +58,6 @@ public final class TerminalOpenAction: MenuAction, @unchecked Sendable {
     public init(type: TerminalEditorType) {
         self.appType = type
         self.actionId = "easyright.action.terminal.\(type.rawValue)"
-        self.localizedTitle = "在 \(type.displayName) 中打开"
         
         switch type {
         case .terminal: self.iconName = "terminal"

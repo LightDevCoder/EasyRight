@@ -110,6 +110,7 @@ public final class SharedStorageManager: @unchecked Sendable {
         public static let canvasItems = "canvas_items"
         public static let customAppActions = "custom_app_actions"
         public static let hasCompletedOnboarding = "has_completed_onboarding"
+        public static let appLanguage = "app_language"
     }
     
     private static let appGroupIdentifier = "group.com.easyright.app"
@@ -795,6 +796,20 @@ public final class SharedStorageManager: @unchecked Sendable {
         return defaultValue
     }
 
+    public func getString(forKey key: String, defaultValue: String? = nil) -> String? {
+        let config = loadConfig()
+        if let value = config[key] as? String {
+            return value
+        }
+
+        if shouldUseAppGroupDefaults,
+           let sharedDefaults,
+           let value = sharedDefaults.string(forKey: key) {
+            return value
+        }
+        return defaultValue
+    }
+
     public func getStringArray(forKey key: String, defaultValue: [String] = []) -> [String] {
         let config = loadConfig()
         if let values = config[key] as? [String] {
@@ -873,6 +888,18 @@ public final class SharedStorageManager: @unchecked Sendable {
     /// 注入共享目录同样只写 config.json；见 getBool 注释。
     @discardableResult
     public func setBool(_ value: Bool, forKey key: String) -> Bool {
+        mutateConfig(
+            update: { config, _ in
+                config[key] = value
+            },
+            mirrorToSharedDefaults: { defaults, _ in
+                defaults.set(value, forKey: key)
+            }
+        )
+    }
+
+    @discardableResult
+    public func setString(_ value: String, forKey key: String) -> Bool {
         mutateConfig(
             update: { config, _ in
                 config[key] = value

@@ -139,7 +139,21 @@ public enum FileManageType: String, Codable, Sendable {
 
 public final class FileManageAction: MenuAction, @unchecked Sendable {
     public let actionId: String
-    public let localizedTitle: String
+    private let customTitle: String?
+
+    public var localizedTitle: String {
+        if let customTitle { return customTitle }
+        switch manageType {
+        case .cut: return L10n.tr("剪切", "Cut")
+        case .paste: return L10n.tr("粘贴", "Paste")
+        case .permanentDelete: return L10n.tr("彻底删除", "Delete Permanently")
+        case .copyPath: return L10n.tr("拷贝完整路径", "Copy Full Path")
+        case .copyName: return L10n.tr("拷贝文件名", "Copy File Name")
+        case .moveTo: return L10n.tr("移动到...", "Move To...")
+        case .copyTo: return L10n.tr("复制到...", "Copy To...")
+        }
+    }
+
     public let iconName: String?
     public let category: ActionCategory = .fileManage
     
@@ -166,11 +180,11 @@ public final class FileManageAction: MenuAction, @unchecked Sendable {
     public var riskDescription: String? {
         switch manageType {
         case .permanentDelete:
-            return "绕过废纸篓直接删除文件，无法撤销。"
+            return L10n.tr("绕过废纸篓直接删除文件，无法撤销。", "Bypasses Trash and permanently deletes items. Cannot be undone.")
         case .moveTo:
-            return "会将选中项目移动到其他目录，跨磁盘卷时会执行复制后删除原件。"
+            return L10n.tr("会将选中项目移动到其他目录，跨磁盘卷时会执行复制后删除原件。", "Moves selected items to another directory; copies and deletes originals when crossing volumes.")
         case .copyTo:
-            return "会将选中项目复制到其他目录，可能产生大量副本。"
+            return L10n.tr("会将选中项目复制到其他目录，可能产生大量副本。", "Copies selected items to another directory, which may duplicate files.")
         case .cut, .paste, .copyPath, .copyName:
             return nil
         }
@@ -179,21 +193,8 @@ public final class FileManageAction: MenuAction, @unchecked Sendable {
     public init(type: FileManageType, customTargetPath: URL? = nil, customTitle: String? = nil) {
         self.manageType = type
         self.customTargetPath = customTargetPath
+        self.customTitle = customTitle
         self.actionId = "easyright.action.filemanage.\(type.rawValue)"
-        
-        if let title = customTitle {
-            self.localizedTitle = title
-        } else {
-            switch type {
-            case .cut: self.localizedTitle = "剪切"
-            case .paste: self.localizedTitle = "粘贴"
-            case .permanentDelete: self.localizedTitle = "彻底删除"
-            case .copyPath: self.localizedTitle = "拷贝完整路径"
-            case .copyName: self.localizedTitle = "拷贝文件名"
-            case .moveTo: self.localizedTitle = "移动到..."
-            case .copyTo: self.localizedTitle = "复制到..."
-            }
-        }
         
         switch type {
         case .cut: self.iconName = "scissors"

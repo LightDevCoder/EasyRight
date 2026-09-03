@@ -277,6 +277,14 @@ public final class AppMenuStateCoordinator: ObservableObject {
         scheduleSave()
     }
 
+    /// 应用指定的预设方案重置画布菜单
+    public func applyPreset(_ preset: StarterPreset) {
+        canvasItems = preset.canvasItems()
+        _ = storage.saveCanvasItems(canvasItems, postNotification: true)
+        scheduleSave()
+        SystemReloader.postConfigChanged()
+    }
+
     /// 清空画布中的所有菜单项
     public func clearAll() {
         canvasItems.removeAll()

@@ -43,6 +43,8 @@ EasyRight 是一款免费、开源的 macOS Finder 右键菜单助手。当前�
 - **可靠动作队列**：Pending -> InFlight -> 终态确认；宿主异常退出后可回收未完成租约。
 - **显式更新检查**：只有点击“检查更新”才访问 GitHub Release API。
 - **Homebrew 外部工具**：区分独立安装与 Homebrew 管理来源，再安装、更新或修复 iTerm2、Warp、VS Code、Sublime Text、Cursor。
+- **中英双语与即时语言切换**：偏好设置支持简体中文与英文即时热切换，全局界面与菜单无需重启即时生效。
+- **预设方案一键直达**：点击左上角标题或偏好设置即可直接弹出预设面板，在极简日常、开发者特供与全能全景间轻松切换。
 - **Universal 2**：同时支持 Apple Silicon 与 Intel Mac。
 
 ## 30 个动作

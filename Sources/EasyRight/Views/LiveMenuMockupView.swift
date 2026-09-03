@@ -136,7 +136,7 @@ public struct LiveMenuMockupView: View {
 
                 VStack(alignment: .leading, spacing: 1) {
                     HStack(spacing: 6) {
-                        Text("实时预览")
+                        Text(L10n.tr("实时预览", "Live Preview"))
                             .font(DesignTokens.Typography.sectionTitle)
                             .foregroundStyle(DesignTokens.Colors.primaryText)
 
@@ -151,7 +151,7 @@ public struct LiveMenuMockupView: View {
                             )
                     }
 
-                    Text("Finder 菜单效果 • 60fps 同步")
+                    Text(L10n.tr("Finder 菜单效果 • 60fps 同步", "Finder Menu Replica • 60fps Sync"))
                         .font(DesignTokens.Typography.caption2)
                         .foregroundStyle(DesignTokens.Colors.tertiaryText)
                 }
@@ -165,7 +165,7 @@ public struct LiveMenuMockupView: View {
                     .fill(DesignTokens.Colors.statusGreen)
                     .frame(width: 6, height: 6)
 
-                Text("已同步")
+                Text(L10n.tr("已同步", "Synced"))
                     .font(DesignTokens.Typography.caption2)
                     .foregroundStyle(DesignTokens.Colors.secondaryText)
             }
@@ -348,13 +348,13 @@ public struct LiveMenuMockupView: View {
                 .font(.system(size: 11))
                 .foregroundStyle(DesignTokens.Colors.tertiaryText)
 
-            Text("悬停可交互体验选中高亮与二级子菜单展开")
+            Text(L10n.tr("悬停可交互体验选中高亮与二级子菜单展开", "Hover to experience highlight and submenu expansion"))
                 .font(DesignTokens.Typography.caption2)
                 .foregroundStyle(DesignTokens.Colors.tertiaryText)
 
             Spacer()
 
-            Text("macOS 1:1 像素拟真")
+            Text(L10n.tr("macOS 1:1 像素拟真", "macOS 1:1 Pixel True"))
                 .font(DesignTokens.Typography.caption2)
                 .foregroundStyle(DesignTokens.Colors.tertiaryText)
         }

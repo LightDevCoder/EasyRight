@@ -94,18 +94,18 @@ public struct AmbientHealthCapsule: View {
     }
 
     private var statusTitle: String {
-        guard let snapshot else { return "检测中…" }
+        guard let snapshot else { return L10n.tr("检测中…", "Checking…") }
 
         switch snapshot.healthLevel {
         case .healthy:
-            return "正常"
+            return L10n.tr("正常", "Healthy")
         case .warning:
             if snapshot.fullDiskAccessState == .denied {
-                return "需要授权"
+                return L10n.tr("需要授权", "Needs Permission")
             }
-            return "需要关注"
+            return L10n.tr("需要关注", "Attention Needed")
         case .critical:
-            return "扩展异常"
+            return L10n.tr("扩展异常", "Extension Error")
         }
     }
 

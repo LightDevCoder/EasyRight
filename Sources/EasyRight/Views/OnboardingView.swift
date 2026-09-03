@@ -22,28 +22,37 @@ public enum StarterPreset: String, CaseIterable, Identifiable, Sendable {
 
     public var title: String {
         switch self {
-        case .minimalist: return "极简日常"
-        case .developer: return "开发者特供"
-        case .powerUser: return "全能全景"
+        case .minimalist: return L10n.tr("极简日常", "Minimalist")
+        case .developer: return L10n.tr("开发者特供", "Developer")
+        case .powerUser: return L10n.tr("全能全景", "Power User")
         }
     }
 
     public var subtitle: String {
         switch self {
-        case .minimalist: return "轻量纯粹 · 高频日常必备"
-        case .developer: return "研发利器 · 终端与工程扩展"
-        case .powerUser: return "全域覆盖 · 矩阵式完整套件"
+        case .minimalist: return L10n.tr("轻量纯粹 · 高频日常必备", "Lightweight & Clean · Daily Essentials")
+        case .developer: return L10n.tr("研发利器 · 终端与工程扩展", "Engineering Tools · Terminal & Git Extensions")
+        case .powerUser: return L10n.tr("全域覆盖 · 矩阵式完整套件", "Full Spectrum · Complete Feature Matrix")
         }
     }
 
     public var description: String {
         switch self {
         case .minimalist:
-            return "保留文本与 Office 新建、快速剪切、路径复制及系统终端等 5 项核心动作，清爽干净。"
+            return L10n.tr(
+                "保留文本与 Office 新建、快速剪切、路径复制及系统终端等 5 项核心动作，清爽干净。",
+                "Preserve 5 core daily actions: Plain text/Office creation, Cut, Copy Path, and Terminal. Clean and clutter-free."
+            )
         case .developer:
-            return "专为工程师定制，涵盖终端、VS Code、Shell/Git 路径、Markdown/JSON 及哈希校验与隐藏文件。"
+            return L10n.tr(
+                "专为工程师定制，涵盖终端、VS Code、Shell/Git 路径、Markdown/JSON 及哈希校验与隐藏文件。",
+                "Tailored for engineers: Terminal, VS Code, Shell/Git paths, Markdown/JSON, Hash calculation, and hidden files."
+            )
         case .powerUser:
-            return "全功能矩阵，涵盖文档创作、文件流转、代码调试、图像转换及二维码工具，以清晰分隔符归类。"
+            return L10n.tr(
+                "全功能矩阵，涵盖文档创作、文件流转、代码调试、图像转换及二维码工具，以清晰分隔符归类。",
+                "Complete matrix covering document creation, file management, coding, image conversion, and QR tools."
+            )
         }
     }
 
@@ -57,9 +66,9 @@ public enum StarterPreset: String, CaseIterable, Identifiable, Sendable {
 
     public var tag: String {
         switch self {
-        case .minimalist: return "推荐日常"
-        case .developer: return "推荐开发"
-        case .powerUser: return "全量套件"
+        case .minimalist: return L10n.tr("推荐日常", "Daily Essential")
+        case .developer: return L10n.tr("推荐开发", "Developer Choice")
+        case .powerUser: return L10n.tr("全量套件", "Full Suite")
         }
     }
 
@@ -78,21 +87,21 @@ public enum StarterPreset: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .minimalist:
             return [
-                "新建 TXT / Word 文档",
-                "快速剪切与路径复制",
-                "一键呼出系统终端"
+                L10n.tr("新建 TXT / Word 文档", "New TXT / Word Documents"),
+                L10n.tr("快速剪切与路径复制", "Quick Cut & Path Copying"),
+                L10n.tr("一键呼出系统终端", "One-click System Terminal")
             ]
         case .developer:
             return [
-                "Terminal & VS Code 唤起",
-                "Unix 安全路径 & Git 相对路径",
-                "MD5 / SHA256 & 隐藏文件切换"
+                L10n.tr("Terminal & VS Code 唤起", "Terminal & VS Code Launch"),
+                L10n.tr("Unix 安全路径 & Git 相对路径", "Unix Escaped & Git Relative Paths"),
+                L10n.tr("MD5 / SHA256 & 隐藏文件切换", "MD5 / SHA256 & Toggle Hidden Files")
             ]
         case .powerUser:
             return [
-                "全套 Office / 文本 / 表格新建",
-                "剪切 / 粘贴 / 永久删除 / 移动",
-                "图像快速转码 & 文本生成二维码"
+                L10n.tr("全套 Office / 文本 / 表格新建", "Complete Office / Text Creation"),
+                L10n.tr("剪切 / 粘贴 / 永久删除 / 移动", "Cut / Paste / Permanent Delete / Move"),
+                L10n.tr("图像快速转码 & 文本生成二维码", "Image Conversion & QR Code Generator")
             ]
         }
     }
@@ -813,18 +822,18 @@ private struct PermissionsStepView: View {
 }
 
 // MARK: - Step 3: Preset Selection Step View
-private struct PresetSelectionStepView: View {
+struct PresetSelectionStepView: View {
     @Binding var selectedPreset: StarterPreset
 
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.md) {
             // Header
             VStack(spacing: 4) {
-                Text("选择起始菜单预设")
+                Text(L10n.tr("选择起始菜单预设", "Choose Menu Preset"))
                     .font(DesignTokens.Typography.headerTitle)
                     .foregroundStyle(DesignTokens.Colors.primaryText)
 
-                Text("挑选适合您日常工作流的初始菜单排布，稍后可在动作画布中随时自由增删与拖拽重排：")
+                Text(L10n.tr("挑选适合您日常工作流的初始菜单排布，稍后可在动作画布中随时自由增删与拖拽重排：", "Pick a starting menu layout for your workflow. You can freely reorder and customize in Action Canvas:"))
                     .font(DesignTokens.Typography.body)
                     .foregroundStyle(DesignTokens.Colors.secondaryText)
             }
@@ -852,7 +861,7 @@ private struct PresetSelectionStepView: View {
 }
 
 // MARK: - Starter Preset Card View
-private struct StarterPresetCardView: View {
+struct StarterPresetCardView: View {
     let preset: StarterPreset
     let isSelected: Bool
     let onSelect: () -> Void
@@ -904,7 +913,7 @@ private struct StarterPresetCardView: View {
                 HStack(spacing: 4) {
                     Image(systemName: "list.bullet.rectangle")
                         .font(.system(size: 10))
-                    Text("\(preset.actionCount) 项动作 · \(preset.separatorCount) 组分隔")
+                    Text(L10n.tr("\(preset.actionCount) 项动作 · \(preset.separatorCount) 组分隔", "\(preset.actionCount) Actions · \(preset.separatorCount) Separators"))
                         .font(DesignTokens.Typography.caption2)
                         .fontWeight(.medium)
                 }

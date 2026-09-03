@@ -85,7 +85,7 @@ public struct DiagnosticDrawerView: View {
                 .font(.system(size: DesignTokens.Icon.medium, weight: .semibold))
                 .foregroundStyle(Color.accentColor)
 
-            Text("系统健康与诊断")
+            Text(L10n.tr("系统健康与诊断", "System Health & Diagnostics"))
                 .font(DesignTokens.Typography.sectionTitle)
                 .foregroundStyle(DesignTokens.Colors.primaryText)
 
@@ -101,7 +101,7 @@ public struct DiagnosticDrawerView: View {
             }
             .buttonStyle(.plain)
             .disabled(isRepairRunning || isRefreshing)
-            .help("刷新诊断检测")
+            .help(L10n.tr("刷新诊断检测", "Refresh diagnostics"))
 
             // Close Drawer Button
             Button {
@@ -119,7 +119,7 @@ public struct DiagnosticDrawerView: View {
                     )
             }
             .buttonStyle(.plain)
-            .help("关闭抽屉")
+            .help(L10n.tr("关闭抽屉", "Close drawer"))
         }
     }
 
@@ -136,17 +136,17 @@ public struct DiagnosticDrawerView: View {
             bannerColor = DesignTokens.Colors.statusGreen
             bannerBg = DesignTokens.Colors.statusGreenBackground
             bannerIcon = "checkmark.shield.fill"
-            bannerText = "所有服务运行正常，右键菜单已就绪。"
+            bannerText = L10n.tr("所有服务运行正常，右键菜单已就绪。", "All services operating normally. Context menus ready.")
         case .warning:
             bannerColor = DesignTokens.Colors.statusAmber
             bannerBg = DesignTokens.Colors.statusAmberBackground
             bannerIcon = "exclamationmark.triangle.fill"
-            bannerText = "部分系统权限或配置需要关注，菜单功能可能受限。"
+            bannerText = L10n.tr("部分系统权限或配置需要关注，菜单功能可能受限。", "Some permissions need attention; features may be limited.")
         case .critical:
             bannerColor = DesignTokens.Colors.statusRed
             bannerBg = DesignTokens.Colors.statusRedBackground
             bannerIcon = "xmark.octagon.fill"
-            bannerText = "访达扩展未激活或处于异常状态，右键菜单无法正常弹出。"
+            bannerText = L10n.tr("访达扩展未激活或处于异常状态，右键菜单无法正常弹出。", "Finder extension inactive or malfunctioning; context menu unavailable.")
         }
 
         return HStack(alignment: .top, spacing: DesignTokens.Spacing.sm) {
@@ -155,7 +155,7 @@ public struct DiagnosticDrawerView: View {
                 .foregroundStyle(bannerColor)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(level == .healthy ? "健康度良好" : (level == .warning ? "需要关注" : "服务异常"))
+                Text(level == .healthy ? L10n.tr("健康度良好", "Healthy") : (level == .warning ? L10n.tr("需要关注", "Attention Needed") : L10n.tr("服务异常", "Service Error")))
                     .font(DesignTokens.Typography.bodyBold)
                     .foregroundStyle(bannerColor)
 

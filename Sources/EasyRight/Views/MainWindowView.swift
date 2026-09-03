@@ -12,10 +12,10 @@ public enum StudioSection: String, CaseIterable, Identifiable {
 
     public var title: String {
         switch self {
-        case .canvas: return "动作画布"
-        case .customApps: return "自定义应用"
-        case .settings: return "偏好设置"
-        case .diagnostics: return "系统诊断"
+        case .canvas: return L10n.tr("动作画布", "Action Canvas")
+        case .customApps: return L10n.tr("自定义应用", "Custom Apps")
+        case .settings: return L10n.tr("偏好设置", "Preferences")
+        case .diagnostics: return L10n.tr("系统诊断", "Diagnostics")
         }
     }
 
@@ -37,10 +37,12 @@ typealias GeneralSettingsView = OverviewSettingsView
 @MainActor
 public struct MainWindowView: View {
     @AppStorage("has_completed_onboarding") private var hasCompletedOnboarding: Bool = false
+    @ObservedObject private var languageManager = AppLanguageManager.shared
     @StateObject private var coordinator: AppMenuStateCoordinator
     @State private var selectedSection: StudioSection = .canvas
     @State private var isStatusDrawerPresented: Bool = false
     @State private var showOnboardingSheet: Bool = false
+    @State private var showPresetSheet: Bool = false
 
     @MainActor
     public init(initialSection: StudioSection = .canvas, showOnboarding: Bool = false) {
@@ -132,6 +134,9 @@ public struct MainWindowView: View {
         .sheet(isPresented: $showOnboardingSheet) {
             OnboardingView(coordinator: coordinator, isPresented: $showOnboardingSheet)
         }
+        .sheet(isPresented: $showPresetSheet) {
+            PresetSelectionSheet(coordinator: coordinator, isPresented: $showPresetSheet)
+        }
         .onAppear {
             if !hasCompletedOnboarding {
                 showOnboardingSheet = true
@@ -140,6 +145,10 @@ public struct MainWindowView: View {
         .onReceive(NotificationCenter.default.publisher(for: .showOnboarding)) { _ in
             showOnboardingSheet = true
         }
+        .onReceive(NotificationCenter.default.publisher(for: .showPresetSelection)) { _ in
+            showPresetSheet = true
+        }
+        .id(languageManager.language)
     }
 
     // MARK: - Top Toolbar
@@ -166,41 +175,48 @@ public struct MainWindowView: View {
 
     // MARK: - App Branding
     private var appBranding: some View {
-        HStack(spacing: DesignTokens.Spacing.sm) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 7, style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [Color.accentColor, Color.accentColor.opacity(0.75)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
+        Button {
+            showPresetSheet = true
+        } label: {
+            HStack(spacing: DesignTokens.Spacing.sm) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 7, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.accentColor, Color.accentColor.opacity(0.75)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
                         )
-                    )
-                    .frame(width: 24, height: 24)
+                        .frame(width: 24, height: 24)
 
-                Image(systemName: "cursorarrow.rays")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(.white)
-            }
+                    Image(systemName: "cursorarrow.rays")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
 
-            VStack(alignment: .leading, spacing: 0) {
-                HStack(spacing: 4) {
-                    Text("EasyRight")
-                        .font(DesignTokens.Typography.windowTitle)
-                        .foregroundStyle(DesignTokens.Colors.primaryText)
+                VStack(alignment: .leading, spacing: 0) {
+                    HStack(spacing: 4) {
+                        Text("EasyRight")
+                            .font(DesignTokens.Typography.windowTitle)
+                            .foregroundStyle(DesignTokens.Colors.primaryText)
 
-                    Text("Studio")
-                        .font(DesignTokens.Typography.caption2)
-                        .foregroundStyle(DesignTokens.Colors.tertiaryText)
-                        .padding(.horizontal, 4)
-                        .padding(.vertical, 1)
-                        .background(
-                            Capsule()
-                                .fill(DesignTokens.Colors.subtleFill)
-                        )
+                        Text("Studio")
+                            .font(DesignTokens.Typography.caption2)
+                            .foregroundStyle(DesignTokens.Colors.tertiaryText)
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 1)
+                            .background(
+                                Capsule()
+                                    .fill(DesignTokens.Colors.subtleFill)
+                            )
+                    }
                 }
             }
+            .contentShape(Rectangle())
         }
+        .buttonStyle(.plain)
+        .help(L10n.tr("点击切换菜单预设方案", "Click to switch menu preset"))
     }
 
     // MARK: - Section Router Segment

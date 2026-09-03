@@ -7,7 +7,7 @@ private struct CategoryChipItem: Identifiable, Hashable {
     var id: String { category?.rawValue ?? "all" }
 
     var title: String {
-        category?.localizedName ?? "全部"
+        category?.localizedName ?? L10n.tr("全部", "All")
     }
 
     var iconName: String {
@@ -92,7 +92,7 @@ public struct ActionLibraryView: View {
                 .font(.system(size: DesignTokens.Icon.small))
                 .foregroundStyle(DesignTokens.Colors.tertiaryText)
 
-            TextField("搜索动作...", text: $coordinator.searchQuery)
+            TextField(L10n.tr("搜索动作...", "Search actions..."), text: $coordinator.searchQuery)
                 .textFieldStyle(.plain)
                 .font(DesignTokens.Typography.body)
 
@@ -105,7 +105,7 @@ public struct ActionLibraryView: View {
                         .foregroundStyle(DesignTokens.Colors.tertiaryText)
                 }
                 .buttonStyle(.plain)
-                .help("清除搜索词")
+                .help(L10n.tr("清除搜索词", "Clear search"))
             }
         }
         .padding(.horizontal, 8)
@@ -190,11 +190,11 @@ public struct ActionLibraryView: View {
                 .foregroundStyle(DesignTokens.Colors.tertiaryText)
 
             VStack(spacing: 2) {
-                Text("未找到相关动作")
+                Text(L10n.tr("未找到相关动作", "No actions found"))
                     .font(DesignTokens.Typography.cardTitle)
                     .foregroundStyle(DesignTokens.Colors.secondaryText)
 
-                Text("尝试更换搜索词或选择“全部”分类")
+                Text(L10n.tr("尝试更换搜索词或选择“全部”分类", "Try another search term or select 'All'"))
                     .font(DesignTokens.Typography.caption)
                     .foregroundStyle(DesignTokens.Colors.tertiaryText)
             }
@@ -206,7 +206,7 @@ public struct ActionLibraryView: View {
                         coordinator.selectedCategory = nil
                     }
                 } label: {
-                    Text("重置筛选")
+                    Text(L10n.tr("重置筛选", "Reset Filters"))
                         .font(DesignTokens.Typography.captionMedium)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 4)
@@ -231,13 +231,13 @@ public struct ActionLibraryView: View {
     // MARK: - Bottom Summary Bar
     private var bottomSummaryBar: some View {
         HStack {
-            Text("共 \(coordinator.allActions.count) 个动作")
+            Text(L10n.tr("共 \(coordinator.allActions.count) 个动作", "\(coordinator.allActions.count) Total Actions"))
                 .font(DesignTokens.Typography.caption2)
                 .foregroundStyle(DesignTokens.Colors.tertiaryText)
 
             Spacer()
 
-            Text("已上架 \(coordinator.stagedActionCount) 项")
+            Text(L10n.tr("已上架 \(coordinator.stagedActionCount) 项", "\(coordinator.stagedActionCount) Staged"))
                 .font(DesignTokens.Typography.caption2)
                 .foregroundStyle(DesignTokens.Colors.secondaryText)
         }
@@ -301,7 +301,7 @@ public struct ActionLibraryRowView: View {
                         .foregroundStyle(DesignTokens.Colors.tertiaryText)
 
                     if action.isHighRisk {
-                        Text("高风险")
+                        Text(L10n.tr("高风险", "High Risk"))
                             .font(.system(size: 9, weight: .medium))
                             .foregroundStyle(DesignTokens.Colors.statusAmber)
                             .padding(.horizontal, 3)
@@ -373,6 +373,6 @@ public struct ActionLibraryRowView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help(isStaged ? "点击从菜单中移除" : "点击添加到菜单")
+        .help(isStaged ? L10n.tr("点击从菜单中移除", "Click to remove from menu") : L10n.tr("点击添加到菜单", "Click to add to menu"))
     }
 }

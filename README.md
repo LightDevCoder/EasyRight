@@ -19,17 +19,17 @@ A FinderSync extension renders menus and captures context, while the host app pe
 
 ## Interface
 
-| Finder top-level menu | Actions and profiles |
+| Finder top-level menu | Actions and canvas |
 | :---: | :---: |
-| <img src="docs/screenshots/finder-context-menu.png" width="420" alt="Finder top-level context menu" /> | <img src="docs/screenshots/settings-actions.png" width="420" alt="Action search, profiles, and menu layout" /> |
+| <img src="docs/screenshots/en/finder-context-menu.png" width="420" alt="Finder top-level context menu" /> | <img src="docs/screenshots/en/settings-actions.png" width="420" alt="Action search, presets, and menu canvas" /> |
 
-| Finder and permissions | Health diagnostics |
+| Preferences and permissions | Health diagnostics |
 | :---: | :---: |
-| <img src="docs/screenshots/settings-permissions.png" width="420" alt="Finder extension, scope, and file access" /> | <img src="docs/screenshots/settings-diagnostics.png" width="420" alt="Context-menu health diagnostics" /> |
+| <img src="docs/screenshots/en/settings-permissions.png" width="420" alt="Finder extension, scope, and file access" /> | <img src="docs/screenshots/en/settings-diagnostics.png" width="420" alt="Context-menu health diagnostics" /> |
 
-| Advanced and external tools | Dark mode |
+| Custom apps | Dark mode |
 | :---: | :---: |
-| <img src="docs/screenshots/settings-advanced.png" width="420" alt="Advanced actions and Homebrew tools" /> | <img src="docs/screenshots/settings-dark.png" width="420" alt="Settings in dark mode" /> |
+| <img src="docs/screenshots/en/settings-advanced.png" width="420" alt="Custom applications integration" /> | <img src="docs/screenshots/en/settings-dark.png" width="420" alt="Studio in dark mode" /> |
 
 ## Highlights
 
@@ -43,6 +43,8 @@ A FinderSync extension renders menus and captures context, while the host app pe
 - **Reliable action queue** using Pending -> InFlight -> terminal acknowledgement and abandoned-lease recovery.
 - **Explicit update checks** that run only after the user clicks Check for Updates.
 - **Homebrew tool management** that distinguishes standalone apps from Homebrew-managed installs before installing, updating, or repairing iTerm2, Warp, VS Code, Sublime Text, and Cursor.
+- **Bilingual interface & instant language switching**: Seamless English and Simplified Chinese switching directly in Preferences without requiring app relaunch.
+- **Instant layout presets**: Switch between Minimalist, Developer, and Power User starter presets directly from the title bar or Preferences.
 - **Universal 2** support for Apple Silicon and Intel Macs.
 
 ## 30 Actions
