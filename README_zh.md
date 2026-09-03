@@ -1,6 +1,6 @@
 # EasyRight
 
-[English](README.md) | **简体中文** | [🚀 版本发布 / Releases](https://github.com/LightDevCoder/EasyRight/releases)
+[English](README.md) | **中文** | [🚀 版本发布](https://github.com/LightDevCoder/EasyRight/releases)
 
 <p align="center">
   <img src="Resources/AppIcon.png" width="128" height="128" alt="EasyRight 图标" />
@@ -19,17 +19,17 @@ EasyRight 是一款免费、开源的 macOS Finder 右键菜单助手。当前�
 
 ## 界面
 
-| Finder 一级菜单 | 动作与档案 |
+| Finder 原生右键菜单 | 动作编排画布与实时预览 |
 | :---: | :---: |
-| <img src="docs/screenshots/finder-context-menu.png" width="420" alt="Finder 一级右键菜单" /> | <img src="docs/screenshots/settings-actions.png" width="420" alt="动作搜索、档案和菜单布局" /> |
+| <img src="docs/screenshots/finder-context-menu.png" width="420" alt="Finder 一级原生右键菜单" /> | <img src="docs/screenshots/settings-actions.png" width="420" alt="动作编排画布、预设与实时预览" /> |
 
-| Finder 与权限 | 健康诊断 |
+| 偏好设置与多语言 | 服务健康与诊断 |
 | :---: | :---: |
-| <img src="docs/screenshots/settings-permissions.png" width="420" alt="Finder 扩展、作用范围和文件访问" /> | <img src="docs/screenshots/settings-diagnostics.png" width="420" alt="右键菜单健康诊断" /> |
+| <img src="docs/screenshots/settings-permissions.png" width="420" alt="偏好设置、界面语言与预设方案" /> | <img src="docs/screenshots/settings-diagnostics.png" width="420" alt="服务状态与健康诊断" /> |
 
-| 高级与外部工具 | 深色模式 |
+| 自定义外部应用 | 深色模式 |
 | :---: | :---: |
-| <img src="docs/screenshots/settings-advanced.png" width="420" alt="高级动作和 Homebrew 外部工具" /> | <img src="docs/screenshots/settings-dark.png" width="420" alt="深色模式设置窗口" /> |
+| <img src="docs/screenshots/settings-advanced.png" width="420" alt="自定义外部应用动作与过滤规则" /> | <img src="docs/screenshots/settings-dark.png" width="420" alt="深色模式工作台" /> |
 
 ## 主要能力
 

@@ -1,6 +1,6 @@
 # EasyRight
 
-**English** | [简体中文](README_zh.md) | [🚀 Releases](https://github.com/LightDevCoder/EasyRight/releases)
+**English** | [中文](README_zh.md) | [🚀 Releases](https://github.com/LightDevCoder/EasyRight/releases)
 
 <p align="center">
   <img src="Resources/AppIcon.png" width="128" height="128" alt="EasyRight icon" />

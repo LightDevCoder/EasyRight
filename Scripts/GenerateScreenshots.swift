@@ -8,48 +8,47 @@ struct GenerateScreenshotsApp {
         let app = NSApplication.shared
         app.setActivationPolicy(.accessory)
 
-        // Set English language
+        let width: CGFloat = 962
+        let height: CGFloat = 764
+        let coordinator = AppMenuStateCoordinator.shared
+
+        // 1. Generate English Screenshots
+        print("🌍 [Screenshots] Generating English screenshots in docs/screenshots/en/ ...")
         AppLanguageManager.shared.language = .en
         UserDefaults.standard.set("en", forKey: SharedStorageManager.Keys.appLanguage)
         _ = SharedStorageManager.shared.setString("en", forKey: SharedStorageManager.Keys.appLanguage)
 
-        let targetDir = URL(fileURLWithPath: "docs/screenshots/en")
-        try? FileManager.default.createDirectory(at: targetDir, withIntermediateDirectories: true)
+        let enDir = URL(fileURLWithPath: "docs/screenshots/en")
+        try? FileManager.default.createDirectory(at: enDir, withIntermediateDirectories: true)
 
-        let width: CGFloat = 962
-        let height: CGFloat = 764
+        coordinator.canvasItems = StarterPreset.developer.canvasItems()
 
-        let coordinator = AppMenuStateCoordinator.shared
-        // Ensure default canvas items are populated
-        if coordinator.canvasItems.isEmpty {
-            coordinator.canvasItems = StarterPreset.developer.canvasItems()
-        }
+        save(render(MainWindowView(coordinator: coordinator, initialSection: .canvas), width: width, height: height), to: enDir.appendingPathComponent("settings-actions.png"))
+        save(render(MainWindowView(coordinator: coordinator, initialSection: .customApps), width: width, height: height), to: enDir.appendingPathComponent("settings-advanced.png"))
+        save(render(MainWindowView(coordinator: coordinator, initialSection: .settings), width: width, height: height, delaySeconds: 0.5), to: enDir.appendingPathComponent("settings-permissions.png"))
+        save(render(MainWindowView(coordinator: coordinator, initialSection: .diagnostics), width: width, height: height), to: enDir.appendingPathComponent("settings-diagnostics.png"))
+        save(render(MainWindowView(coordinator: coordinator, initialSection: .canvas), width: width, height: height, isDark: true), to: enDir.appendingPathComponent("settings-dark.png"))
+        save(render(FinderContextMenuMockupView(isEnglish: true), width: 1100, height: 800), to: enDir.appendingPathComponent("finder-context-menu.png"))
 
-        print("📸 Rendering settings-actions.png (Action Canvas)...")
-        let canvasView = MainWindowView(coordinator: coordinator, initialSection: .canvas)
-        save(render(canvasView, width: width, height: height), to: targetDir.appendingPathComponent("settings-actions.png"))
+        // 2. Generate Chinese Screenshots
+        print("🇨🇳 [Screenshots] Generating Chinese screenshots in docs/screenshots/ ...")
+        AppLanguageManager.shared.language = .zhHans
+        UserDefaults.standard.set("zhHans", forKey: SharedStorageManager.Keys.appLanguage)
+        _ = SharedStorageManager.shared.setString("zhHans", forKey: SharedStorageManager.Keys.appLanguage)
 
-        print("📸 Rendering settings-advanced.png (Custom Apps)...")
-        let customAppsView = MainWindowView(coordinator: coordinator, initialSection: .customApps)
-        save(render(customAppsView, width: width, height: height), to: targetDir.appendingPathComponent("settings-advanced.png"))
+        let zhDir = URL(fileURLWithPath: "docs/screenshots")
+        try? FileManager.default.createDirectory(at: zhDir, withIntermediateDirectories: true)
 
-        print("📸 Rendering settings-permissions.png (General Settings)...")
-        let settingsView = MainWindowView(coordinator: coordinator, initialSection: .settings)
-        save(render(settingsView, width: width, height: height, delaySeconds: 0.5), to: targetDir.appendingPathComponent("settings-permissions.png"))
+        coordinator.canvasItems = StarterPreset.developer.canvasItems()
 
-        print("📸 Rendering settings-diagnostics.png (Diagnostics)...")
-        let diagnosticsView = MainWindowView(coordinator: coordinator, initialSection: .diagnostics)
-        save(render(diagnosticsView, width: width, height: height), to: targetDir.appendingPathComponent("settings-diagnostics.png"))
+        save(render(MainWindowView(coordinator: coordinator, initialSection: .canvas), width: width, height: height), to: zhDir.appendingPathComponent("settings-actions.png"))
+        save(render(MainWindowView(coordinator: coordinator, initialSection: .customApps), width: width, height: height), to: zhDir.appendingPathComponent("settings-advanced.png"))
+        save(render(MainWindowView(coordinator: coordinator, initialSection: .settings), width: width, height: height, delaySeconds: 0.5), to: zhDir.appendingPathComponent("settings-permissions.png"))
+        save(render(MainWindowView(coordinator: coordinator, initialSection: .diagnostics), width: width, height: height), to: zhDir.appendingPathComponent("settings-diagnostics.png"))
+        save(render(MainWindowView(coordinator: coordinator, initialSection: .canvas), width: width, height: height, isDark: true), to: zhDir.appendingPathComponent("settings-dark.png"))
+        save(render(FinderContextMenuMockupView(isEnglish: false), width: 1100, height: 800), to: zhDir.appendingPathComponent("finder-context-menu.png"))
 
-        print("📸 Rendering settings-dark.png (Dark Mode)...")
-        let darkView = MainWindowView(coordinator: coordinator, initialSection: .canvas)
-        save(render(darkView, width: width, height: height, isDark: true), to: targetDir.appendingPathComponent("settings-dark.png"))
-
-        print("📸 Rendering finder-context-menu.png...")
-        let contextMenuView = FinderContextMenuMockupView()
-        save(render(contextMenuView, width: 1100, height: 800), to: targetDir.appendingPathComponent("finder-context-menu.png"))
-
-        print("✅ All 6 English screenshots generated successfully in docs/screenshots/en/")
+        print("✅ All English and Chinese screenshots generated successfully!")
     }
 
     @MainActor
@@ -79,7 +78,6 @@ struct GenerateScreenshotsApp {
             window.layoutIfNeeded()
             host.layoutSubtreeIfNeeded()
         }
-        host.layoutSubtreeIfNeeded()
 
         let scale: CGFloat = 2.0
         let rep = NSBitmapImageRep(
@@ -110,8 +108,10 @@ struct GenerateScreenshotsApp {
     }
 }
 
-/// Simulated Finder Context Menu Mockup View in English
+/// Simulated Finder Context Menu Mockup View
 struct FinderContextMenuMockupView: View {
+    var isEnglish: Bool = true
+
     var body: some View {
         ZStack {
             // macOS Desktop background wallpaper
@@ -129,7 +129,7 @@ struct FinderContextMenuMockupView: View {
                     Circle().fill(Color(red: 1.0, green: 0.76, blue: 0.25)).frame(width: 12, height: 12)
                     Circle().fill(Color(red: 0.16, green: 0.80, blue: 0.30)).frame(width: 12, height: 12)
                     Spacer()
-                    Text("Documents — EasyRight Demo")
+                    Text(isEnglish ? "Documents — EasyRight Demo" : "文稿 — EasyRight 演示")
                         .font(.system(size: 13, weight: .medium))
                         .foregroundStyle(Color.secondary)
                     Spacer()
@@ -146,7 +146,7 @@ struct FinderContextMenuMockupView: View {
                         Image(systemName: "doc.text.fill")
                             .font(.system(size: 48))
                             .foregroundStyle(.blue)
-                        Text("README.md")
+                        Text(isEnglish ? "README.md" : "README_zh.md")
                             .font(.system(size: 12))
                     }
                     .padding(12)
@@ -166,7 +166,7 @@ struct FinderContextMenuMockupView: View {
                         Image(systemName: "folder.fill")
                             .font(.system(size: 48))
                             .foregroundStyle(.cyan)
-                        Text("Projects")
+                        Text(isEnglish ? "Projects" : "项目工程")
                             .font(.system(size: 12))
                     }
                     .padding(12)
@@ -183,40 +183,40 @@ struct FinderContextMenuMockupView: View {
 
             // Right-click Context Menu Overlay
             VStack(alignment: .leading, spacing: 2) {
-                menuItem("Open", shortcut: nil)
-                menuItem("Open With", shortcut: nil, hasSubmenu: true)
+                menuItem(isEnglish ? "Open" : "打开", shortcut: nil)
+                menuItem(isEnglish ? "Open With" : "打开方式", shortcut: nil, hasSubmenu: true)
                 menuDivider
-                menuItem("Move to Trash", shortcut: "⌘⌫")
+                menuItem(isEnglish ? "Move to Trash" : "移到废纸篓", shortcut: "⌘⌫")
                 menuDivider
-                menuItem("Get Info", shortcut: "⌘I")
-                menuItem("Rename", shortcut: nil)
-                menuItem("Duplicate", shortcut: "⌘D")
-                menuItem("Make Alias", shortcut: nil)
-                menuItem("Quick Look \"demo.txt\"", shortcut: "Space")
+                menuItem(isEnglish ? "Get Info" : "显示简介", shortcut: "⌘I")
+                menuItem(isEnglish ? "Rename" : "重新命名", shortcut: nil)
+                menuItem(isEnglish ? "Duplicate" : "复制", shortcut: "⌘D")
+                menuItem(isEnglish ? "Make Alias" : "制作替身", shortcut: nil)
+                menuItem(isEnglish ? "Quick Look \"demo.txt\"" : "快速查看 “demo.txt”", shortcut: "Space")
                 menuDivider
-                menuItem("Copy \"demo.txt\"", shortcut: "⌘C")
-                menuItem("Share…", shortcut: nil)
+                menuItem(isEnglish ? "Copy \"demo.txt\"" : "拷贝 “demo.txt”", shortcut: "⌘C")
+                menuItem(isEnglish ? "Share…" : "共享…", shortcut: nil)
                 menuDivider
                 // EasyRight Actions
-                menuItem("New Plain Text (.txt)", icon: "doc.text")
-                menuItem("New Word Document (.docx)", icon: "doc.richtext")
-                menuItem("New Markdown Document (.md)", icon: "doc.text.fill")
+                menuItem(isEnglish ? "New Plain Text (.txt)" : "新建 文本文件 (.txt)", icon: "doc.text")
+                menuItem(isEnglish ? "New Word Document (.docx)" : "新建 Word 文档 (.docx)", icon: "doc.richtext")
+                menuItem(isEnglish ? "New Markdown Document (.md)" : "新建 Markdown 文档 (.md)", icon: "doc.text.fill")
                 menuDivider
-                menuItem("Cut", icon: "scissors", shortcut: "⌘X")
-                menuItem("Copy Full Path", icon: "link")
-                menuItem("Copy File Name", icon: "pencil.and.outline")
+                menuItem(isEnglish ? "Cut" : "剪切", icon: "scissors", shortcut: "⌘X")
+                menuItem(isEnglish ? "Copy Full Path" : "拷贝完整路径", icon: "link")
+                menuItem(isEnglish ? "Copy File Name" : "拷贝文件名", icon: "pencil.and.outline")
                 menuDivider
-                menuItem("Open in Terminal", icon: "terminal")
-                menuItem("Open in VS Code", icon: "chevron.left.forwardslash.chevron.right")
+                menuItem(isEnglish ? "Open in Terminal" : "在 系统终端 中打开", icon: "terminal")
+                menuItem(isEnglish ? "Open in VS Code" : "在 VS Code 中打开", icon: "chevron.left.forwardslash.chevron.right")
                 menuDivider
-                menuItem("Calculate SHA256 Checksum", icon: "number.square.fill")
-                menuItem("Generate QR Code from Clipboard", icon: "qrcode")
+                menuItem(isEnglish ? "Calculate SHA256 Checksum" : "获取文件 SHA256 校验码", icon: "number.square.fill")
+                menuItem(isEnglish ? "Generate QR Code from Clipboard" : "从剪贴板生成二维码", icon: "qrcode")
                 menuDivider
-                menuItem("Services", shortcut: nil, hasSubmenu: true)
+                menuItem(isEnglish ? "Services" : "服务", shortcut: nil, hasSubmenu: true)
             }
             .padding(.vertical, 5)
             .padding(.horizontal, 4)
-            .frame(width: 270)
+            .frame(width: isEnglish ? 270 : 280)
             .background(
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
                     .fill(Color(nsColor: .windowBackgroundColor).opacity(0.96))
