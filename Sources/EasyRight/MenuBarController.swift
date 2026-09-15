@@ -306,7 +306,7 @@ public final class MenuBarController: NSObject, NSMenuDelegate {
         )
         SystemReloader.postConfigChanged()
         
-        DispatchQueue.global(qos: .userInitiated).async {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             let result = SystemReloader.restartFinder()
             DispatchQueue.main.async { [weak self] in
                 self?.cachedSnapshot = nil // Invalidate health cache

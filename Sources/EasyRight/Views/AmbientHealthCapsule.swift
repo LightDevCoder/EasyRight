@@ -1,6 +1,7 @@
 import SwiftUI
 import AppKit
 import FinderSync
+import Combine
 
 /// Ambient health status capsule for the Studio header and navigation bar.
 /// Summarizes real-time system status (Full Disk Access, FinderSync registration, Heartbeat)

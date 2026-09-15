@@ -1,6 +1,7 @@
 import SwiftUI
 import AppKit
 import FinderSync
+import Combine
 
 // MARK: - Notification Extension
 public extension Notification.Name {

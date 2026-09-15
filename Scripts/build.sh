@@ -337,7 +337,41 @@ EXT_SOURCES="
     Sources/EasyRight/Core/Actions/QRCodePanel.swift
 "
 
-SDK_PATH=$(xcrun --show-sdk-path)
+# 5. 确定 SDK 与编译架构
+if [ -z "${SDK_PATH:-}" ]; then
+    DEFAULT_SDK_PATH="$(xcrun --show-sdk-path)"
+    SDK_PATH="$DEFAULT_SDK_PATH"
+
+    # macOS 27+ / 独立 CommandLineTools (CLT) 兼容性适配：
+    # 在 macOS 27 SDK (MacOSX27.0.sdk) 中，SwiftUI 的 @State 被重构为 Attached Macro (SwiftUIMacros.StateMacro)。
+    # 但 Apple 仅在完整 Xcode.app 中附带了 libSwiftUIMacros.dylib，独立 CLT 环境缺失该宏插件。
+    # 当检测到处于纯 CLT 环境且当前 SDK 依赖 StateMacro 时，自动探测同目录下可用的兼容 SDK（如 MacOSX26.5.sdk / MacOSX26.sdk）。
+    TOOLCHAIN_DIR="$(xcode-select -p 2>/dev/null || true)"
+    if [[ "$TOOLCHAIN_DIR" == *"CommandLineTools"* ]]; then
+        HAS_SWIFTUI_MACRO=false
+        if [ -f "$TOOLCHAIN_DIR/usr/lib/swift/host/plugins/libSwiftUIMacros.dylib" ]; then
+            HAS_SWIFTUI_MACRO=true
+        fi
+        if [ "$HAS_SWIFTUI_MACRO" = false ] && [ -d "$DEFAULT_SDK_PATH" ]; then
+            if grep -rq "StateMacro" "$DEFAULT_SDK_PATH/System/Library/Frameworks/SwiftUICore.framework" 2>/dev/null; then
+                CLT_SDKS_DIR="$(dirname "$DEFAULT_SDK_PATH")"
+                for candidate in "$CLT_SDKS_DIR/MacOSX26.5.sdk" "$CLT_SDKS_DIR/MacOSX26.sdk" "$CLT_SDKS_DIR/MacOSX15.sdk" "$CLT_SDKS_DIR/MacOSX14.sdk"; do
+                    if [ -d "$candidate" ]; then
+                        echo "⚠️ [Build] 检测到当前处于纯 CommandLineTools 环境且缺少 libSwiftUIMacros 宏插件"
+                        echo "💡 [Build] 自动切换至兼容 SDK: $candidate 以确保构建顺畅"
+                        SDK_PATH="$candidate"
+                        break
+                    fi
+                done
+            fi
+        fi
+    fi
+fi
+echo "📦 [Build] 使用 SDK 路径: $SDK_PATH"
+
+TARGET_ARCHS="${TARGET_ARCHS:-universal}"
+echo "🎯 [Build] 目标构建架构: $TARGET_ARCHS"
+
 MODULE_CACHE_DIR="$BUILD_DIR/ModuleCache"
 mkdir -p "$MODULE_CACHE_DIR"
 COMMON_FLAGS="-Onone -parse-as-library -sdk $SDK_PATH -vfsoverlay $BUILD_DIR/overlay.yaml -module-cache-path $MODULE_CACHE_DIR -Xcc -fmodules-cache-path=$MODULE_CACHE_DIR"
@@ -357,60 +391,82 @@ case "$DISTRIBUTION_ROUTE" in
         ;;
 esac
 
-# 6. 编译宿主主程序 (arm64 与 x86_64)
-echo "🛠️ [Build] 编译宿主主程序 (arm64)..."
-swiftc $COMMON_FLAGS -target arm64-apple-macosx13.0 $HOST_SOURCES -o "$BUILD_DIR/EasyRight_arm64"
+# 6. 编译宿主主程序
+if [ "$TARGET_ARCHS" = "universal" ]; then
+    echo "🛠️ [Build] 编译宿主主程序 (arm64)..."
+    swiftc $COMMON_FLAGS -target arm64-apple-macosx13.0 $HOST_SOURCES -o "$BUILD_DIR/EasyRight_arm64"
 
-echo "🛠️ [Build] 编译宿主主程序 (x86_64)..."
-swiftc $COMMON_FLAGS -target x86_64-apple-macosx13.0 $HOST_SOURCES -o "$BUILD_DIR/EasyRight_x86_64"
+    echo "🛠️ [Build] 编译宿主主程序 (x86_64)..."
+    swiftc $COMMON_FLAGS -target x86_64-apple-macosx13.0 $HOST_SOURCES -o "$BUILD_DIR/EasyRight_x86_64"
 
-echo "🔗 [Build] 使用 lipo 创建宿主主程序的 Universal 胖二进制文件..."
-lipo -create -output "$APP_BUNDLE/Contents/MacOS/EasyRight" "$BUILD_DIR/EasyRight_arm64" "$BUILD_DIR/EasyRight_x86_64"
+    echo "🔗 [Build] 使用 lipo 创建宿主主程序的 Universal 胖二进制文件..."
+    lipo -create -output "$APP_BUNDLE/Contents/MacOS/EasyRight" "$BUILD_DIR/EasyRight_arm64" "$BUILD_DIR/EasyRight_x86_64"
+else
+    echo "🛠️ [Build] 编译宿主主程序 ($TARGET_ARCHS)..."
+    swiftc $COMMON_FLAGS -target "${TARGET_ARCHS}-apple-macosx13.0" $HOST_SOURCES -o "$APP_BUNDLE/Contents/MacOS/EasyRight"
+fi
 
 # 动态 .service 的微型转发 helper，不包含动作引擎或设置逻辑。
-echo "🛠️ [Build] 编译 Finder 快捷服务 helper (Universal)..."
+echo "🛠️ [Build] 编译 Finder 快捷服务 helper ($TARGET_ARCHS)..."
 QUICK_SERVICE_SOURCES="
     Sources/EasyRightQuickService/main.swift \
     Sources/EasyRight/Core/FinderQuickServiceProtocol.swift
 "
-swiftc -Onone -sdk "$SDK_PATH" -vfsoverlay "$BUILD_DIR/overlay.yaml" \
-    -module-cache-path "$MODULE_CACHE_DIR" -Xcc -fmodules-cache-path="$MODULE_CACHE_DIR" \
-    -target arm64-apple-macosx13.0 $QUICK_SERVICE_SOURCES \
-    -o "$BUILD_DIR/EasyRightQuickService_arm64"
-swiftc -Onone -sdk "$SDK_PATH" -vfsoverlay "$BUILD_DIR/overlay.yaml" \
-    -module-cache-path "$MODULE_CACHE_DIR" -Xcc -fmodules-cache-path="$MODULE_CACHE_DIR" \
-    -target x86_64-apple-macosx13.0 $QUICK_SERVICE_SOURCES \
-    -o "$BUILD_DIR/EasyRightQuickService_x86_64"
-lipo -create \
-    -output "$APP_BUNDLE/Contents/Resources/EasyRightQuickService" \
-    "$BUILD_DIR/EasyRightQuickService_arm64" \
-    "$BUILD_DIR/EasyRightQuickService_x86_64"
+if [ "$TARGET_ARCHS" = "universal" ]; then
+    swiftc -Onone -sdk "$SDK_PATH" -vfsoverlay "$BUILD_DIR/overlay.yaml" \
+        -module-cache-path "$MODULE_CACHE_DIR" -Xcc -fmodules-cache-path="$MODULE_CACHE_DIR" \
+        -target arm64-apple-macosx13.0 $QUICK_SERVICE_SOURCES \
+        -o "$BUILD_DIR/EasyRightQuickService_arm64"
+    swiftc -Onone -sdk "$SDK_PATH" -vfsoverlay "$BUILD_DIR/overlay.yaml" \
+        -module-cache-path "$MODULE_CACHE_DIR" -Xcc -fmodules-cache-path="$MODULE_CACHE_DIR" \
+        -target x86_64-apple-macosx13.0 $QUICK_SERVICE_SOURCES \
+        -o "$BUILD_DIR/EasyRightQuickService_x86_64"
+    lipo -create \
+        -output "$APP_BUNDLE/Contents/Resources/EasyRightQuickService" \
+        "$BUILD_DIR/EasyRightQuickService_arm64" \
+        "$BUILD_DIR/EasyRightQuickService_x86_64"
+else
+    swiftc -Onone -sdk "$SDK_PATH" -vfsoverlay "$BUILD_DIR/overlay.yaml" \
+        -module-cache-path "$MODULE_CACHE_DIR" -Xcc -fmodules-cache-path="$MODULE_CACHE_DIR" \
+        -target "${TARGET_ARCHS}-apple-macosx13.0" $QUICK_SERVICE_SOURCES \
+        -o "$APP_BUNDLE/Contents/Resources/EasyRightQuickService"
+fi
 
+# 7. 编译 Finder Sync 插件
+if [ "$TARGET_ARCHS" = "universal" ]; then
+    echo "🛠️ [Build] 编译 Finder Sync 扩展插件 (arm64)..."
+    swiftc $COMMON_FLAGS -target arm64-apple-macosx13.0 $EXT_SOURCES -o "$BUILD_DIR/EasyRightExtension_arm64"
 
-# 7. 编译 Finder Sync 插件 (arm64 与 x86_64)
-echo "🛠️ [Build] 编译 Finder Sync 扩展插件 (arm64)..."
-swiftc $COMMON_FLAGS -target arm64-apple-macosx13.0 $EXT_SOURCES -o "$BUILD_DIR/EasyRightExtension_arm64"
+    echo "🛠️ [Build] 编译 Finder Sync 扩展插件 (x86_64)..."
+    swiftc $COMMON_FLAGS -target x86_64-apple-macosx13.0 $EXT_SOURCES -o "$BUILD_DIR/EasyRightExtension_x86_64"
 
-echo "🛠️ [Build] 编译 Finder Sync 扩展插件 (x86_64)..."
-swiftc $COMMON_FLAGS -target x86_64-apple-macosx13.0 $EXT_SOURCES -o "$BUILD_DIR/EasyRightExtension_x86_64"
+    echo "🔗 [Build] 使用 lipo 创建扩展插件的 Universal 胖二进制文件..."
+    lipo -create -output "$EXT_BUNDLE/Contents/MacOS/EasyRightExtension" "$BUILD_DIR/EasyRightExtension_arm64" "$BUILD_DIR/EasyRightExtension_x86_64"
+else
+    echo "🛠️ [Build] 编译 Finder Sync 扩展插件 ($TARGET_ARCHS)..."
+    swiftc $COMMON_FLAGS -target "${TARGET_ARCHS}-apple-macosx13.0" $EXT_SOURCES -o "$EXT_BUNDLE/Contents/MacOS/EasyRightExtension"
+fi
 
-echo "🔗 [Build] 使用 lipo 创建扩展插件的 Universal 胖二进制文件..."
-lipo -create -output "$EXT_BUNDLE/Contents/MacOS/EasyRightExtension" "$BUILD_DIR/EasyRightExtension_arm64" "$BUILD_DIR/EasyRightExtension_x86_64"
+# 8. 编译 ActionVerifier 工具
+if [ "$TARGET_ARCHS" = "universal" ]; then
+    echo "🛠️ [Build] 编译 ActionVerifier 校验程序 (arm64)..."
+    swiftc -Onone -parse-as-library -sdk $SDK_PATH -vfsoverlay "$BUILD_DIR/overlay.yaml" \
+        -module-cache-path "$MODULE_CACHE_DIR" -Xcc -fmodules-cache-path="$MODULE_CACHE_DIR" \
+        -target arm64-apple-macosx13.0 Sources/ActionVerifier/ActionVerifier.swift -o "$BUILD_DIR/ActionVerifier_arm64"
 
+    echo "🛠️ [Build] 编译 ActionVerifier 校验程序 (x86_64)..."
+    swiftc -Onone -parse-as-library -sdk $SDK_PATH -vfsoverlay "$BUILD_DIR/overlay.yaml" \
+        -module-cache-path "$MODULE_CACHE_DIR" -Xcc -fmodules-cache-path="$MODULE_CACHE_DIR" \
+        -target x86_64-apple-macosx13.0 Sources/ActionVerifier/ActionVerifier.swift -o "$BUILD_DIR/ActionVerifier_x86_64"
 
-# 8. 编译 ActionVerifier 工具 (arm64 与 x86_64)
-echo "🛠️ [Build] 编译 ActionVerifier 校验程序 (arm64)..."
-swiftc -Onone -parse-as-library -sdk $SDK_PATH -vfsoverlay "$BUILD_DIR/overlay.yaml" \
-    -module-cache-path "$MODULE_CACHE_DIR" -Xcc -fmodules-cache-path="$MODULE_CACHE_DIR" \
-    -target arm64-apple-macosx13.0 Sources/ActionVerifier/ActionVerifier.swift -o "$BUILD_DIR/ActionVerifier_arm64"
-
-echo "🛠️ [Build] 编译 ActionVerifier 校验程序 (x86_64)..."
-swiftc -Onone -parse-as-library -sdk $SDK_PATH -vfsoverlay "$BUILD_DIR/overlay.yaml" \
-    -module-cache-path "$MODULE_CACHE_DIR" -Xcc -fmodules-cache-path="$MODULE_CACHE_DIR" \
-    -target x86_64-apple-macosx13.0 Sources/ActionVerifier/ActionVerifier.swift -o "$BUILD_DIR/ActionVerifier_x86_64"
-
-echo "🔗 [Build] 使用 lipo 创建 ActionVerifier 的 Universal 胖二进制文件..."
-lipo -create -output "ActionVerifier_bin" "$BUILD_DIR/ActionVerifier_arm64" "$BUILD_DIR/ActionVerifier_x86_64"
+    echo "🔗 [Build] 使用 lipo 创建 ActionVerifier 的 Universal 胖二进制文件..."
+    lipo -create -output "ActionVerifier_bin" "$BUILD_DIR/ActionVerifier_arm64" "$BUILD_DIR/ActionVerifier_x86_64"
+else
+    echo "🛠️ [Build] 编译 ActionVerifier 校验程序 ($TARGET_ARCHS)..."
+    swiftc -Onone -parse-as-library -sdk $SDK_PATH -vfsoverlay "$BUILD_DIR/overlay.yaml" \
+        -module-cache-path "$MODULE_CACHE_DIR" -Xcc -fmodules-cache-path="$MODULE_CACHE_DIR" \
+        -target "${TARGET_ARCHS}-apple-macosx13.0" Sources/ActionVerifier/ActionVerifier.swift -o "ActionVerifier_bin"
+fi
 
 
 # 9. 对生成的程序和扩展进行签名
