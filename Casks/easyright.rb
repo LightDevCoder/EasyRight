@@ -1,6 +1,6 @@
 cask "easyright" do
-  version "0.1.0"
-  sha256 "12b5a6fe524d7e4134f1bdefe3f1f88706f83499835137fa81a63e7f149f553b"
+  version "0.1.1"
+  sha256 "1076120a750a9e98cbf6b998c911cc3a591ef9e8e52fb64da807b06fc3ac19ca"
 
   url "https://github.com/LightDevCoder/EasyRight/releases/download/v#{version}/EasyRight-v#{version}-macOS-Universal.dmg"
   name "EasyRight"

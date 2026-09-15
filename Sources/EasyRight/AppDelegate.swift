@@ -29,6 +29,17 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     )
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        // 0. 前置灾难自愈检测：检查是否需要从持久化备份自动还原配置（如重装后沙盒容器被清理）
+        let didRestore = SharedStorageManager.shared.checkAndRestoreBackupIfNeeded()
+        if didRestore {
+            SharedHUDManager.show(
+                title: "配置已自动恢复",
+                content: "已为您无感还原先前的右键菜单配置",
+                iconName: "arrow.counterclockwise.circle",
+                isSuccess: true
+            )
+        }
+
         // 1. 初始化并注册系统自带的右键菜单动作
         registerDefaultActions()
         NSApp.servicesProvider = FinderServicesProvider.shared

@@ -6,6 +6,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ---
 
+## v0.1.1 — 2026-09-16
+
+### Seamless Config Persistence & macOS 27 Golden Gate Adaptation
+
+#### Added
+- **Seamless Dual-Write Configuration Mirroring**:
+  - Automatically mirrors all configuration changes (`config.json`, `action_config.json`, `custom_app_actions.json`) to durable host storage at `~/Library/Application Support/EasyRight/ConfigBackup/`.
+  - Zero-touch disaster recovery on launch: automatically restores existing configurations if the extension sandbox container is wiped during cleaning, uninstallation, or reinstallation.
+  - Automatic initial backup backfill for existing users upon first launch.
+- **Graded Uninstall Protection**:
+  - `Scripts/uninstall.sh` now preserves user configuration backups by default, preventing accidental loss during maintenance. Added `--purge` flag for complete cleanup.
+
+#### Fixed & Improved
+- **macOS 27 (Golden Gate) & Swift 6 Compatibility**:
+  - Fixed CLT-only build incompatibility in `Scripts/build.sh` by automatically detecting missing `SwiftUIMacros` and falling back to a compatible SDK.
+  - Added architecture targeting support (`TARGET_ARCHS`) in `build.sh`.
+  - Fixed Swift 6 compiler warnings in `MenuBarController`, `AmbientHealthCapsule`, and `OnboardingView`.
+  - Added comprehensive test suite `ConfigBackupRecoveryTests` covering dual-write mirroring, auto-restoration, and corruption defense.
+
+---
+
 ## v0.1.0 — 2026-09-03
 
 ### Initial Release

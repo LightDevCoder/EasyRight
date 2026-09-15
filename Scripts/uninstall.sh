@@ -40,7 +40,22 @@ rm -rf "/Applications/EasyRight.app"
 echo "📂 [Uninstall] 5. 清除持久化配置、UserDefaults 与容器缓存..."
 defaults delete com.easyright.app 2>/dev/null || true
 defaults delete group.com.easyright.app 2>/dev/null || true
-rm -rf "$HOME/Library/Application Support/EasyRight" 2>/dev/null || true
+
+PURGE_MODE=false
+for arg in "$@"; do
+    if [ "$arg" = "--purge" ] || [ "$arg" = "--all" ]; then
+        PURGE_MODE=true
+    fi
+done
+
+if [ "$PURGE_MODE" = true ]; then
+    echo "⚠️ [Uninstall] 运行在 --purge 模式：将彻底清除持久化配置备份！"
+    rm -rf "$HOME/Library/Application Support/EasyRight" 2>/dev/null || true
+else
+    echo "💡 [Uninstall] 默认保留用户持久化配置备份 (~/Library/Application Support/EasyRight/ConfigBackup)。"
+    echo "💡 [Uninstall] 重新安装 EasyRight 后将自动无感还原配置；如需彻底抹除请执行: ./Scripts/uninstall.sh --purge"
+fi
+
 rm -rf "$HOME/Library/Caches/com.easyright.app" 2>/dev/null || true
 rm -f "$HOME/Library/Preferences/com.easyright.app.plist" 2>/dev/null || true
 

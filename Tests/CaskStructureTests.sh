@@ -16,8 +16,8 @@ fail() {
 [[ -f "$CASK_FILE" ]] || fail "缺少 Cask 文件: $CASK_FILE"
 
 grep -q 'cask "easyright"' "$CASK_FILE" || fail "Cask token 必须是 easyright"
-grep -q 'version "0.1.0"' "$CASK_FILE" || fail "Cask 必须使用明确版本"
-grep -q 'sha256 "12b5a6fe524d7e4134f1bdefe3f1f88706f83499835137fa81a63e7f149f553b"' "$CASK_FILE" || fail "Cask 必须校验稳定制品"
+grep -q 'version "0.1.1"' "$CASK_FILE" || fail "Cask 必须使用明确版本"
+grep -q 'sha256 "1076120a750a9e98cbf6b998c911cc3a591ef9e8e52fb64da807b06fc3ac19ca"' "$CASK_FILE" || fail "Cask 必须校验稳定制品"
 grep -q 'download/v#{version}/EasyRight-v#{version}-macOS-Universal.dmg' "$CASK_FILE" || fail "Cask URL 必须不可变"
 grep -q 'livecheck do' "$CASK_FILE" || fail "Cask 必须提供版本检查策略"
 grep -q 'app "EasyRight.app"' "$CASK_FILE" || fail "Cask 必须安装 EasyRight.app"

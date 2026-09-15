@@ -277,6 +277,110 @@ public final class SharedStorageManager: @unchecked Sendable {
         return sharedContainerURL.appendingPathComponent("custom_app_actions.json")
     }
 
+    /// 宿主专属安全持久化备份目录：位于 ~/Library/Application Support/EasyRight/ConfigBackup
+    /// 当传入 sharedContainerURLOverride 时，使用该 override 目录下的 ConfigBackup 子目录以保证测试完全隔离。
+    public var durableBackupDirectoryURL: URL {
+        if let override = sharedContainerURLOverride {
+            let dir = override.appendingPathComponent("ConfigBackup", isDirectory: true)
+            try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true, attributes: nil)
+            return dir
+        }
+        let realHome = getRealHomeDirectory()
+        let path = (realHome as NSString).appendingPathComponent("Library/Application Support/EasyRight/ConfigBackup")
+        let url = URL(fileURLWithPath: path, isDirectory: true)
+        try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
+        return url
+    }
+
+    /// 将配置数据原子镜像备份至宿主专属安全持久化目录。
+    /// 仅在宿主主程序中执行，沙盒内的扩展进程不访问。
+    public func mirrorToDurableBackup(fileName: String, data: Data) {
+        guard !isRunningInExtension else { return }
+        let targetURL = durableBackupDirectoryURL.appendingPathComponent(fileName)
+        do {
+            try data.write(to: targetURL, options: .atomic)
+            AppLog.debug("配置已自动镜像备份至持久化目录: \(fileName)", category: .storage)
+        } catch {
+            AppLog.error("配置镜像备份失败 (\(fileName))：\(error.localizedDescription)", category: .storage)
+        }
+    }
+
+    /// 灾难恢复与自动还原：
+    /// 当宿主应用启动时，检查扩展沙盒容器是否缺少主配置（例如扩展被卸载重装、沙盒容器被清理工具删除）。
+    /// - 若主容器缺失配置，而 Application Support 备份目录中存在有效备份，自动全量自愈还原。
+    /// - 反之，若主容器存在配置但备份目录为空（现有老用户初次升级），自动补录首次备份。
+    /// - Returns: true 表示触发了从备份的自动还原；false 表示未触发还原。
+    @discardableResult
+    public func checkAndRestoreBackupIfNeeded() -> Bool {
+        guard !isRunningInExtension else { return false }
+
+        let primaryConfigExists = FileManager.default.fileExists(atPath: configURL.path)
+        let primaryActionConfigExists = FileManager.default.fileExists(atPath: actionConfigURL.path)
+
+        let backupConfigURL = durableBackupDirectoryURL.appendingPathComponent("config.json")
+        let backupActionConfigURL = durableBackupDirectoryURL.appendingPathComponent("action_config.json")
+        let backupCustomAppURL = durableBackupDirectoryURL.appendingPathComponent("custom_app_actions.json")
+
+        let backupConfigExists = FileManager.default.fileExists(atPath: backupConfigURL.path)
+        let backupActionConfigExists = FileManager.default.fileExists(atPath: backupActionConfigURL.path)
+
+        // 场景 1：老用户平滑升级 —— 主容器已有配置，但持久备份目录尚为空。自动补录初始备份。
+        if primaryConfigExists && !backupConfigExists {
+            if let data = try? Data(contentsOf: configURL) {
+                mirrorToDurableBackup(fileName: "config.json", data: data)
+            }
+            if primaryActionConfigExists, let data = try? Data(contentsOf: actionConfigURL) {
+                mirrorToDurableBackup(fileName: "action_config.json", data: data)
+            }
+            if FileManager.default.fileExists(atPath: customAppActionsURL.path),
+               let data = try? Data(contentsOf: customAppActionsURL) {
+                mirrorToDurableBackup(fileName: "custom_app_actions.json", data: data)
+            }
+            AppLog.info("已为现有用户自动补录初始配置备份至 Application Support", category: .storage)
+            return false
+        }
+
+        // 场景 2：重装自愈 —— 主容器缺失配置，但备份目录存在有效配置。
+        if !primaryConfigExists && backupConfigExists {
+            guard let backupData = try? Data(contentsOf: backupConfigURL),
+                  let _ = try? JSONSerialization.jsonObject(with: backupData, options: []) as? [String: Any] else {
+                AppLog.error("备份文件损坏或非合法 JSON，取消自动自愈以防污染", category: .storage)
+                return false
+            }
+
+            AppLog.info("检测到主容器配置缺失，开始从持久化备份自动自愈还原...", category: .storage)
+            do {
+                try? FileManager.default.createDirectory(at: sharedContainerURL, withIntermediateDirectories: true, attributes: nil)
+                try backupData.write(to: configURL, options: .atomic)
+
+                if backupActionConfigExists, let actionData = try? Data(contentsOf: backupActionConfigURL) {
+                    try actionData.write(to: actionConfigURL, options: .atomic)
+                }
+
+                if FileManager.default.fileExists(atPath: backupCustomAppURL.path),
+                   let customAppData = try? Data(contentsOf: backupCustomAppURL) {
+                    try customAppData.write(to: customAppActionsURL, options: .atomic)
+                }
+
+                AppLog.info("配置自愈还原完成，正在广播配置更新通知", category: .storage)
+
+                DistributedNotificationCenter.default().postNotificationName(
+                    Notification.Name("com.easyright.app.configChanged"),
+                    object: nil,
+                    userInfo: nil,
+                    deliverImmediately: true
+                )
+
+                return true
+            } catch {
+                AppLog.error("从备份还原配置失败：\(error.localizedDescription)", category: .storage)
+                return false
+            }
+        }
+
+        return false
+    }
+
     public var extensionHeartbeatURL: URL {
         return sharedContainerURL.appendingPathComponent("extension-heartbeat.json")
     }
@@ -730,6 +834,7 @@ public final class SharedStorageManager: @unchecked Sendable {
     private func saveConfigUnlocked(_ config: [String: Any]) throws {
         let data = try JSONSerialization.data(withJSONObject: config, options: .prettyPrinted)
         try data.write(to: configURL, options: .atomic)
+        mirrorToDurableBackup(fileName: "config.json", data: data)
     }
 
     private func loadConfig() -> [String: Any] {
@@ -1076,9 +1181,10 @@ public final class SharedStorageManager: @unchecked Sendable {
 
         guard success else { return false }
 
-        // 同步原子写入 action_config.json
+        // 同步原子写入 action_config.json 并镜像备份
         do {
             try data.write(to: actionConfigURL, options: .atomic)
+            mirrorToDurableBackup(fileName: "action_config.json", data: data)
         } catch {
             AppLog.error("action_config.json 写入失败：\(error.localizedDescription)", category: .storage)
         }
@@ -1134,6 +1240,7 @@ public final class SharedStorageManager: @unchecked Sendable {
 
         do {
             try data.write(to: customAppActionsURL, options: .atomic)
+            mirrorToDurableBackup(fileName: "custom_app_actions.json", data: data)
         } catch {
             AppLog.error("custom_app_actions.json 写入失败：\(error.localizedDescription)", category: .storage)
         }
